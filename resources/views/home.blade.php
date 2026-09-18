@@ -1611,6 +1611,7 @@
                 <p class="text-light opacity-75 fs-6 mb-4" style="line-height: 1.8;">
                     No more boring textbooks. Dive into quick, high-energy games and lessons designed to fit your busy schedule and keep your motivation high.
                 </p>
+
                 <div class="d-flex align-items-center gap-2 text-white small">
                     <i class="bi bi-check-circle-fill" style="color: #c084fc;"></i> Fits into any daily routine
                 </div>
@@ -1776,9 +1777,7 @@
                     </p>
                 </div>
             </div>
-
-        </div>
-
+    </div>
         <!-- Mobile Responsive View (Vertical Stack) -->
         <div class="d-lg-none d-flex flex-column gap-4">
             @foreach([

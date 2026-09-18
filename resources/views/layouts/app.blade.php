@@ -213,7 +213,7 @@
     @stack('styles')
 </head>
 <body>
-   <!-- Navbar Component -->
+   <!-- Navbar Component -->  
 <header class="sticky-top w-full">
     <nav class="navbar navbar-expand-lg navbar-dark py-3">
         <div class="container max-w-7xl">
@@ -318,7 +318,7 @@
             <small class="text-muted">&copy; <span id="currentYear"></span> SukuraLearn. Made with <i class="bi bi-heart-fill text-danger"></i> in Tokyo.</small>
         </div>
     </footer>
-
+    
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
