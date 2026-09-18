@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>kotoba. - Japanese Learning App</title>
+    <title>SukuraLearn. - Japanese Learning App</title>
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -307,7 +307,7 @@
     <!-- Footer Component -->
     <footer class="py-4 border-top border-opacity-10" style="border-color: rgba(255, 255, 255, 0.08) !important;">
         <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
-            <div class="fw-extrabold fs-4 gradient-text">kotoba.</div>
+            <div class="fw-extrabold fs-4 gradient-text">SukuraLearn.</div>
             <nav class="d-flex flex-wrap justify-content-center gap-4 small opacity-75">
                 <a href="#courses" class="text-decoration-none text-light">Courses</a>
                 <a href="#methods" class="text-decoration-none text-light">Methods</a>
@@ -315,7 +315,7 @@
                 <a href="#" class="text-decoration-none text-light">Privacy</a>
                 <a href="#" class="text-decoration-none text-light">Terms</a>
             </nav>
-            <small class="text-muted">&copy; <span id="currentYear"></span> kotoba. Made with <i class="bi bi-heart-fill text-danger"></i> in Tokyo.</small>
+            <small class="text-muted">&copy; <span id="currentYear"></span> SukuraLearn. Made with <i class="bi bi-heart-fill text-danger"></i> in Tokyo.</small>
         </div>
     </footer>
 
