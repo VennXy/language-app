@@ -34,9 +34,9 @@ Route::middleware(['auth'])->group(function () {
 
 // Super Admin Routes
 Route::middleware(['auth'])->prefix('super-admin')->name('super.admin.')->group(function () {
-    Route::get('/dashboard', [\App\Http\Controllers\Admin\AdminManagementController::class, 'index'])->name('admins.index');
-    Route::post('/admins', [\App\Http\Controllers\Admin\AdminManagementController::class, 'store'])->name('admins.store');
-    Route::delete('/admins/{id}', [\App\Http\Controllers\Admin\AdminManagementController::class, 'destroy'])->name('admins.destroy');
+    Route::get('/dashboard', [AdminManagementController::class, 'index'])->name('admins.index');
+    Route::post('/admins', [AdminManagementController::class, 'store'])->name('admins.store');
+    Route::delete('/admins/{id}', [AdminManagementController::class, 'destroy'])->name('admins.destroy');
 });
 
 // Level and Course Routes
