@@ -9,11 +9,33 @@ class Lesson extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['level_id', 'title', 'type', 'score', 'description'];
+    protected $fillable = [ 
+        'title',
+        'level_id',
+        'category_id',
+        'type',
+        'score',
+        'sort_order',
+        'description',
+    ];
 
-    // Level နဲ့ ချိတ်ဆက်ခြင်း (One-to-Many Inverse)
     public function level()
     {
         return $this->belongsTo(Level::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function vocabularies()
+    {
+        return $this->hasMany(Vocabulary::class);
+    }
+
+    public function quizzes()
+    {
+        return $this->hasMany(Quiz::class);
     }
 }

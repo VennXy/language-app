@@ -1,3 +1,4 @@
+@section('student_shell', true)
 @extends('layouts.app')
 
 @section('content')
@@ -5,7 +6,7 @@
     <div class="row justify-content-center">
         <!-- Sidebar (Profile, Manage Access) -->
         <div class="col-md-3 mb-4">
-            <div class="card bg-dark text-white border border-secondary shadow-lg p-3" style="background: rgba(13, 6, 26, 0.85) !important; backdrop-filter: blur(12px); border-radius: 12px;">
+            <div class="card bg-dark text-white border border-secondary shadow-lg p-3">
                 <h5 class="fw-bold mb-3 px-3 text-purple" style="color: #c084fc;">Settings</h5>
                 <div class="list-group list-group-flush bg-transparent">
                     <a href="{{ route('profile.edit') }}" class="list-group-item list-group-item-action bg-transparent text-white border-0 rounded mb-1 {{ request()->routeIs('profile.edit') ? 'active-sidebar-item' : '' }}">
@@ -20,7 +21,7 @@
 
         <!-- Main Content (My Profile Form) -->
         <div class="col-md-8">
-            <div class="card bg-dark text-white border border-secondary shadow-lg p-4" style="background: rgba(13, 6, 26, 0.85) !important; backdrop-filter: blur(12px); border-radius: 12px;">
+            <div class="card bg-dark text-white border border-secondary shadow-lg p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h3 class="fw-bold mb-0" style="color: #c084fc;">My Profile</h3>
                     <!-- Edit Button -->

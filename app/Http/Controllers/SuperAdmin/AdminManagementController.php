@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ExamQuestion;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -10,29 +11,45 @@ use Illuminate\Support\Facades\Hash;
 class AdminManagementController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Super Admin Dashboard အတွက် (Overview & Stats များပြရန်)
+     */
+   public function dashboard()
+    {
+        abort_unless(auth()->user()?->role === 'admin', 403);
+
+        // Admin စာရင်းများကို ရှာဖွေခြင်း
+        $adminId = auth()->id();
+
+        // dashboard.blade.php သို့ $admins ကို ထည့်သွင်း ပို့ပေးခြင်း
+        return view('admin.dashboard', [
+            'dashboardForAdmin' => true,
+            'myQuestionsCount' => ExamQuestion::where('admin_id', $adminId)->count(),
+            'myDraftQuestionsCount' => ExamQuestion::where('admin_id', $adminId)->where('status', 'draft')->count(),
+            'myPendingQuestionsCount' => ExamQuestion::where('admin_id', $adminId)->where('status', 'pending')->count(),
+        ]);
+    }
+    /**
+     * Administrators List စာရင်းကို သီးသန့်ပြသရန်
      */
     public function index()
-{
-    // Student များကို ဖယ်ထုတ်ပြီး Super Admin နှင့် Admin များကိုသာ ဆွဲထုတ်မည်
-    $admins = User::whereIn('role', ['super_admin', 'admin'])
-                ->orderByRaw("FIELD(role, 'super_admin', 'admin')")
-                ->orderBy('id', 'ASC')
-                ->get();
-                
-    $totalUsers = User::count(); // စနစ်ထဲရှိ User အားလုံး၏ စုစုပေါင်း အရေအတွက်
+    {
+        $this->authorizeRole('super_admin');
 
-    return view('admin.dashboard', compact('admins', 'totalUsers'));
-}
+        $admins = User::whereIn('role', ['super_admin', 'admin'])
+                    ->orderByRaw("CASE role WHEN 'super_admin' THEN 0 WHEN 'admin' THEN 1 ELSE 2 END")
+                    ->orderBy('id', 'ASC')
+                    ->get();
+                    
+        $totalUsers = User::count();
+        return view('admin.admin-management', compact('admins', 'totalUsers'));
+    }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        if (auth()->user()->role !== 'super_admin') {
-            abort(403, 'Unauthorized action.');
-        }
+        $this->authorizeRole('super_admin');
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -40,15 +57,15 @@ class AdminManagementController extends Controller
             'password' => 'required|string|min:8',
         ]);
 
-   User::create([
-    'name' => $request->name,
-    'email' => $request->email,
-    'password' => Hash::make($request->password),
-    'date_of_birth' => $request->date_of_birth,
-    'role' => 'admin', // ဤနေရာတွင် admin ဟု သေချာပါစေ
-]);
-        // POST request ပြီးပါက view ကို တိုက်ရိုက်မခေါ်ဘဲ redirect ပြန်ပေးခြင်းဖြင့် index() မှ data များကို ပို့ပေးမည်
-        return redirect()->back()->with('success', 'Admin အသစ်ကို အောင်မြင်စွာ ဖန်တီးပြီးပါပြီ။');
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'date_of_birth' => $request->date_of_birth,
+            'role' => 'admin',
+        ]);
+
+        return redirect()->back()->with('success', 'New Admin Successfully Created.');
     }
 
     /**
@@ -56,13 +73,56 @@ class AdminManagementController extends Controller
      */
     public function destroy($id)
     {
-        if (auth()->user()->role !== 'super_admin') {
-            abort(403, 'Unauthorized action.');
-        }
+        $this->authorizeRole('super_admin');
 
         $admin = User::where('role', 'admin')->findOrFail($id);
         $admin->delete();
 
-        return redirect()->back()->with('success', 'Admin ကို အောင်မြင်စွာ ဖယ်ရှားပြီးပါပြီ။');
+        return redirect()->back()->with('success', 'Removed Admin Successfully.');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show($id)
+    {
+        $this->authorizeRole('super_admin');
+
+        $admin = User::whereIn('role', ['super_admin', 'admin'])->findOrFail($id);
+        
+        return view('super-admin.show', compact('admin'));
+    }
+    public function update(Request $request, $id)
+{
+    $this->authorizeRole('super_admin');
+
+    // 1. Data များကို validate လုပ်ခြင်း
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email,' . $id,
+        'date_of_birth' => 'nullable|date',
+        'password' => 'nullable|min:8',
+    ]);
+
+    // 2. Admin အချက်အလက်ကို ရှာပြီး update လုပ်ခြင်း
+    $admin = User::where('role', 'admin')->findOrFail($id);
+    
+    $admin->name = $request->name;
+    $admin->email = $request->email;
+    $admin->date_of_birth = $request->date_of_birth;
+
+    // အကယ်၍ password အသစ်ထည့်မှသာ ပြောင်းလဲမည်
+    if ($request->filled('password')) {
+        $admin->password = Hash::make($request->password);
+    }
+
+    $admin->save();
+
+    return redirect()->back()->with('success', 'Admin updated successfully.');
+}
+
+    private function authorizeRole(string $role): void
+    {
+        abort_unless(auth()->user()?->role === $role, 403);
     }
 }

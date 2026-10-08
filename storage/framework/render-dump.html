@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SukuraLearn. - Japanese Learning App</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <!-- Cropper.js CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+    <!-- Cropper.js JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0d061a;
+            color: #ffffff;
+        }
+        
+        /* Navbar Styling */
+        .navbar {
+            background: rgba(13, 6, 26, 0.85) !important;
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            z-index: 1000;
+        }
+
+        /* Glowing Pill Active Tab Styling */
+        .navbar .nav-link.active {
+            background: rgba(147, 51, 234, 0.2) !important;
+            border: 1px solid rgba(192, 132, 252, 0.4);
+            color: #f472b6 !important;
+            box-shadow: 0 0 15px rgba(147, 51, 234, 0.3);
+            font-weight: 600;
+        }
+
+        .navbar .nav-link:hover {
+            color: #ffffff !important;
+            background: rgba(192, 132, 252, 0.12);
+            border-radius: 50rem;
+        }
+
+        /* Utilities */
+        .gradient-text {
+            background: linear-gradient(135deg, #c084fc, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        @keyframes borderGlow {
+            0% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.3), inset 0 0 5px rgba(59, 130, 246, 0.1); }
+            50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.8), inset 0 0 10px rgba(59, 130, 246, 0.3); }
+            100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.3), inset 0 0 5px rgba(59, 130, 246, 0.1); }
+        }
+
+        @keyframes registerBorderGlow {
+            0% { box-shadow: 0 0 5px rgba(219, 39, 119, 0.3), inset 0 0 5px rgba(219, 39, 119, 0.1); }
+            50% { box-shadow: 0 0 20px rgba(219, 39, 119, 0.8), inset 0 0 10px rgba(219, 39, 119, 0.3); }
+            100% { box-shadow: 0 0 5px rgba(219, 39, 119, 0.3), inset 0 0 5px rgba(219, 39, 119, 0.1); }
+        }
+
+        /* Shared Glass Button Base Style */
+        .liquid-btn-glass {
+            position: relative;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            padding: 8px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            border-radius: 50rem;
+            overflow: hidden;
+            z-index: 1;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(8px);
+            transition: all 0.4s ease;
+        }
+
+        .liquid-btn-glass .btn-text {
+            position: relative;
+            z-index: 2;
+            color: #ffffff;
+        }
+
+        .liquid-btn-glass .liquid-fill {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            transition: top 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+
+        /* Login Button */
+        .btn-login-glass {
+            border: 1px solid rgba(59, 130, 246, 0.6);
+            animation: borderGlow 3s infinite ease-in-out;
+        }
+        .btn-login-glass .liquid-fill {
+            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+        }
+        .btn-login-glass:hover {
+            border-color: rgba(59, 130, 246, 1);
+            transform: translateY(-1px);
+        }
+        .btn-login-glass:hover .liquid-fill {
+            top: 0;
+        }
+
+        /* Register Button */
+        .btn-register-glass {
+            border: 1px solid rgba(219, 39, 119, 0.6);
+            animation: registerBorderGlow 3s infinite ease-in-out;
+        }  
+        .btn-register-glass .liquid-fill {
+            background: linear-gradient(135deg, #9333ea, #db2777);
+        }
+        .btn-register-glass:hover {
+            border-color: rgba(219, 39, 119, 1);
+            transform: translateY(-1px);
+        }
+        .btn-register-glass:hover .liquid-fill {
+            top: 0;
+        }
+
+        /* Glassmorphism Dropdown Menu Styling */
+        .dropdown-menu-glass {
+            background: rgba(13, 6, 26, 0.75) !important; 
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(192, 132, 252, 0.2) !important; 
+            border-radius: 12px !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37) !important;
+            padding: 8px !important;
+        }
+
+        .dropdown-menu-glass .dropdown-item {
+            color: #e2e8f0 !important;
+            border-radius: 8px;
+            padding: 8px 12px;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-menu-glass .dropdown-item:hover {
+            background: rgba(147, 51, 234, 0.2) !important; 
+            color: #ffffff !important;
+            transform: translateX(4px);
+        }
+
+        .dropdown-menu-glass .dropdown-item.text-danger:hover {
+            background: rgba(239, 68, 68, 0.2) !important;
+            color: #f87171 !important;
+        }
+
+        .dropdown-menu-glass .dropdown-divider {
+            border-color: rgba(255, 255, 255, 0.1) !important;
+        }  
+
+        .student-currencies {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+
+        .currency-display,
+        .heart-status-trigger {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .currency-icon {
+            font-size: 1.25rem;
+            line-height: 1;
+        }
+
+        .heart-status {
+            position: relative;
+        }
+
+        .heart-status-trigger {
+            padding: 0;
+            border: 0;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .heart-popover {
+            position: absolute;
+            z-index: 1100;
+            top: calc(100% + 0.55rem);
+            right: 0;
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-5px);
+            width: min(270px, calc(100vw - 1rem));
+            padding: 0.75rem;
+            color: #fff;
+            background: rgba(18, 17, 29, 0.98);
+            border: 1px solid rgba(255, 255, 255, 0.13);
+            border-radius: 0.8rem;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42), 0 0 16px rgba(251, 191, 36, 0.08);
+            transition: opacity 150ms ease, transform 150ms ease, visibility 150ms ease;
+        }
+
+        .heart-status:hover .heart-popover,
+        .heart-status:focus-within .heart-popover {
+            visibility: visible;
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .daily-streak-status { position: relative; }
+        .daily-streak-trigger { padding: 0; border: 0; background: transparent; cursor: pointer; }
+        .daily-streak-trigger.is-milestone {
+            color: #fcd34d;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.45);
+        }
+        .daily-streak-popover {
+            position: absolute;
+            z-index: 1100;
+            top: calc(100% + 0.55rem);
+            right: 0;
+            width: min(230px, calc(100vw - 1rem));
+            padding: 0.7rem 0.75rem;
+            color: #fff;
+            background: rgba(18, 17, 29, 0.98);
+            border: 1px solid rgba(255, 255, 255, 0.13);
+            border-radius: 0.8rem;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42);
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-5px);
+            transition: opacity 150ms ease, transform 150ms ease, visibility 150ms ease;
+        }
+        .daily-streak-status:hover .daily-streak-popover,
+        .daily-streak-status:focus-within .daily-streak-popover {
+            visibility: visible;
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+        .daily-streak-title { color: rgba(255,255,255,.65); font-size: .68rem; }
+        .daily-streak-value { margin-top: .12rem; font-weight: 750; }
+        .daily-streak-message { margin-top: .4rem; color: rgba(255,255,255,.68); font-size: .7rem; }
+        .daily-streak-today { margin-top: .45rem; font-size: .68rem; }
+        .daily-streak-today.is-done { color: #86efac; }
+        .daily-streak-today.is-pending { color: #fcd34d; }
+
+        .heart-popover-top,
+        .heart-popover-gems {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .heart-slots {
+            display: flex;
+            align-items: center;
+            gap: 0.08rem;
+            min-width: 0;
+        }
+
+        .heart-slot {
+            font-size: 1rem;
+            line-height: 1;
+        }
+
+        .heart-slot.is-empty {
+            color: rgba(255, 255, 255, 0.38);
+        }
+
+        .heart-popover-count {
+            margin-left: 0.45rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .heart-countdown {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            margin-top: 0.65rem;
+        }
+
+        .heart-countdown-time {
+            font-size: 1.15rem;
+            font-variant-numeric: tabular-nums;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+
+        .heart-countdown-label {
+            color: rgba(255, 255, 255, 0.62);
+            font-size: 0.68rem;
+            line-height: 1.1;
+        }
+
+        .heart-progress-track {
+            height: 4px;
+            margin: 0.55rem 0 0.65rem;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 999px;
+        }
+
+        .heart-progress-fill {
+            display: block;
+            height: 100%;
+            background: linear-gradient(90deg, #fb7185, #fbbf24);
+            border-radius: inherit;
+            transition: width 250ms linear;
+        }
+
+        .heart-full-state {
+            margin-top: 0.55rem;
+            color: #fda4af;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .heart-full-state[hidden],
+        #heart-countdown-section[hidden] { display: none !important; }
+
+        .heart-popover-gems {
+            padding-top: 0.45rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.82rem;
+        }
+
+        .gem-refill-action {
+            width: 100%;
+            margin-top: 0.55rem;
+            padding: 0.4rem 0.55rem;
+            color: #fef3c7;
+            background: rgba(255, 255, 255, 0.035);
+            border: 1px solid rgba(251, 191, 36, 0.32);
+            border-radius: 0.55rem;
+            font-size: 0.76rem;
+            font-weight: 650;
+            transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
+        }
+
+        .gem-refill-action:not(:disabled):hover {
+            background: rgba(251, 191, 36, 0.1);
+            border-color: rgba(251, 191, 36, 0.65);
+            transform: translateY(-1px);
+        }
+
+        .gem-refill-action:disabled {
+            color: rgba(255, 255, 255, 0.48);
+            border-color: rgba(255, 255, 255, 0.12);
+            cursor: not-allowed;
+        }
+
+        .heart-popover-message {
+            margin-top: 0.35rem;
+            color: #fcd34d;
+            font-size: 0.68rem;
+            text-align: center;
+        }
+
+        .heart-clock {
+            display: inline-block;
+            margin-right: 0.25rem;
+            animation: heartClockTurn 5s linear infinite;
+        }
+
+        @keyframes heartClockTurn {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .heart-clock { animation: none; }
+        }
+
+        @media (max-width: 575.98px) {
+            .student-currencies { gap: 0.5rem; }
+            .heart-popover { right: 0; }
+        }
+    </style>
+                <style>
+/* ================= Design tokens ================= */
+.sk-dash{
+  --sk-violet:#8b5cf6; --sk-purple:#a855f7; --sk-pink:#f472b6; --sk-magenta:#e879f9;
+  --sk-text:#f5f3ff; --sk-mute:rgba(226,220,255,.64);
+  --sk-line:rgba(192,132,252,.16); --sk-card:rgba(255,255,255,.045);
+  --sk-side-w:252px;
+  color:var(--sk-text);
+  font-family:"Segoe UI",Tahoma,Geneva,Verdana,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+}
+
+/* ================= Sakura-night background ================= */
+.sk-dash .sk-bg{
+  position:fixed; inset:0; z-index:-1; overflow:hidden; pointer-events:none;
+  background:
+    radial-gradient(900px 520px at 12% -8%, rgba(139,92,246,.22), transparent 62%),
+    radial-gradient(760px 480px at 88% 10%, rgba(236,72,153,.14), transparent 60%),
+    radial-gradient(1000px 640px at 70% 95%, rgba(109,40,217,.20), transparent 64%),
+    linear-gradient(160deg,#0b0620 0%,#120a2e 45%,#170c3a 72%,#0d0624 100%);
+}
+.sk-dash .sk-orb{
+  position:absolute; border-radius:50%; filter:blur(70px); opacity:.5;
+  animation:skFloat 16s ease-in-out infinite alternate;
+}
+.sk-dash .sk-orb-1{width:420px;height:420px;left:-90px;top:4%;background:radial-gradient(circle,rgba(168,85,247,.40),transparent 70%);}
+.sk-dash .sk-orb-2{width:380px;height:380px;right:-70px;top:36%;background:radial-gradient(circle,rgba(244,114,182,.30),transparent 70%);animation-delay:-6s;}
+.sk-dash .sk-orb-3{width:520px;height:320px;left:38%;bottom:-120px;background:radial-gradient(circle,rgba(109,40,217,.34),transparent 70%);animation-delay:-11s;}
+@keyframes skFloat{from{transform:translate3d(0,0,0);}to{transform:translate3d(30px,-36px,0);}}
+.sk-dash .sk-petal{
+  position:absolute; top:-6vh; width:13px; height:13px; opacity:0;
+  background:linear-gradient(135deg,#fbcfe8,#f9a8d4);
+  border-radius:70% 30% 65% 35%;
+  animation:skDrift 24s linear infinite;
+}
+@keyframes skDrift{
+  0%{transform:translateY(-6vh) rotate(0deg) translateX(0);opacity:0;}
+  8%{opacity:.38;}
+  100%{transform:translateY(110vh) rotate(340deg) translateX(70px);opacity:0;}
+}
+.sk-dash .sk-wm{
+  position:absolute; right:3vw; bottom:1vh; pointer-events:none; user-select:none;
+  font-size:clamp(120px,17vw,250px); font-weight:800; line-height:1;
+  color:rgba(244,114,182,.05); letter-spacing:.08em;
+}
+
+/* ================= Glass base ================= */
+.sk-glass{
+  background:var(--sk-card);
+  border:1px solid var(--sk-line);
+  backdrop-filter:blur(16px) saturate(140%);
+  -webkit-backdrop-filter:blur(16px) saturate(140%);
+  box-shadow:0 12px 36px rgba(4,2,16,.45), 0 0 22px rgba(139,92,246,.07),
+             inset 0 1px 0 rgba(255,255,255,.05);
+  border-radius:18px;
+}
+
+/* ================= Shell / main ================= */
+/* position:relative ONLY — never add z-index here: a stacking context on .sk-main would
+   trap Bootstrap modals (z-index ~1050) below the fixed sidebar (z-900) and the drawer
+   overlay (z-890), so the exit/session-ended box renders under the chrome and its
+   buttons cannot be clicked. Root-level compositing keeps modals above all shell layers. */
+.sk-dash .sk-main{position:relative;}
+@media (min-width:992px){.sk-dash .sk-main{margin-left:var(--sk-side-w);}}
+.sk-dash .sk-wrap{max-width:1280px; margin:0 auto; padding:30px 32px 56px;}
+/* ================= Fixed sakura sidebar ================= */
+.sk-dash .sk-side{
+  position:fixed; left:0; top:0; bottom:0; width:var(--sk-side-w); z-index:900;
+  display:flex; flex-direction:column; gap:16px;
+  padding:28px 16px 20px;
+  background:rgba(12,6,28,.78);
+  backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+  border-right:1px solid rgba(192,132,252,.15);
+  box-shadow:8px 0 32px rgba(4,2,16,.35);
+  overflow-y:auto; scrollbar-width:thin; scrollbar-color:rgba(192,132,252,.3) transparent;
+}
+.sk-dash .sk-side::-webkit-scrollbar{width:5px;}
+.sk-dash .sk-side::-webkit-scrollbar-thumb{background:rgba(192,132,252,.3);border-radius:9px;}
+.sk-dash .sk-brand{display:flex; align-items:center; gap:10px; padding:6px 8px 2px; text-decoration:none;}
+.sk-dash .sk-brand-mark{
+  width:38px; height:38px; border-radius:12px; display:grid; place-items:center;
+  font-size:1.12rem; background:linear-gradient(135deg,rgba(168,85,247,.5),rgba(236,72,153,.45));
+  border:1px solid rgba(250,205,255,.45); box-shadow:0 0 16px rgba(216,180,254,.40);
+}
+.sk-dash .sk-brand-name{
+  display:block; font-weight:800; font-size:1.02rem; letter-spacing:.01em;
+  background:linear-gradient(120deg,#e9d5ff,#f9a8d4);
+  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+}
+.sk-dash .sk-brand-sub{display:block; font-size:.6rem; letter-spacing:.18em; color:var(--sk-mute);}
+.sk-dash .sk-nav{display:flex; flex-direction:column; gap:4px;}
+.sk-dash .sk-nav-a{
+  display:flex; align-items:center; gap:11px; width:100%;
+  padding:10px 13px; border-radius:12px; text-align:left;
+  font-size:.89rem; font-weight:500; text-decoration:none;
+  color:rgba(228,224,255,.72); background:transparent;
+  border:1px solid transparent; font-family:inherit; cursor:pointer;
+  transition:background .22s ease, color .22s ease, box-shadow .22s ease, transform .22s ease;
+}
+.sk-dash .sk-nav-a i{font-size:1rem; width:20px; text-align:center; color:rgba(216,180,254,.85);}
+.sk-dash .sk-nav-a:hover{background:rgba(255,255,255,.06); color:#fff; transform:translateX(2px);}
+.sk-dash .sk-nav-a:focus-visible{outline:2px solid rgba(216,180,254,.6); outline-offset:2px;}
+.sk-dash .sk-nav-a.is-active{
+  background:linear-gradient(90deg,rgba(168,85,247,.30),rgba(236,72,153,.16));
+  border-color:rgba(216,180,254,.45); color:#f9a8d4; font-weight:700;
+  box-shadow:0 0 18px rgba(168,85,247,.32), inset 0 0 14px rgba(244,114,182,.08);
+}
+.sk-dash .sk-nav-a.is-active i{color:#fbcfe8;}
+.sk-dash .sk-nav-sep{margin:10px 6px 4px; border-top:1px solid rgba(255,255,255,.09);}
+.sk-dash .sk-nav-form{margin:0;}
+.sk-dash .sk-nav-form button:hover{color:#fff;}
+.sk-dash .sk-side-foot{
+  margin-top:auto; padding:12px 10px 4px; text-align:center;
+  font-size:.64rem; letter-spacing:.1em; color:rgba(226,220,255,.45);
+}
+
+/* ================= Buttons / pills / badges ================= */
+.sk-btn{
+  display:inline-flex; align-items:center; gap:8px; padding:11px 22px;
+  border-radius:999px; font-size:.88rem; font-weight:700; text-decoration:none;
+  border:1px solid transparent; transition:transform .25s ease, box-shadow .25s ease, background .25s ease;
+}
+.sk-btn-primary{
+  background:linear-gradient(120deg,#9333ea,#db2777); color:#fff;
+  box-shadow:0 8px 22px rgba(147,51,234,.40), 0 0 18px rgba(236,72,153,.25);
+}
+.sk-btn-primary:hover{transform:translateY(-2px); color:#fff;
+  box-shadow:0 12px 26px rgba(147,51,234,.50), 0 0 26px rgba(236,72,153,.35);}
+.sk-btn-ghost{background:rgba(255,255,255,.05); border-color:rgba(192,132,252,.40); color:#e9d5ff;}
+.sk-btn-ghost:hover{transform:translateY(-2px); background:rgba(168,85,247,.18); color:#fff;}
+.sk-pill{
+  font-size:.62rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
+  padding:3px 9px; border-radius:99px; white-space:nowrap;
+}
+.sk-pill-done{background:rgba(34,197,94,.16); color:#86efac; border:1px solid rgba(134,239,172,.40);}
+.sk-pill-lock{background:rgba(255,255,255,.06); color:rgba(226,220,255,.55); border:1px solid rgba(255,255,255,.14);}
+.sk-pill-prog{background:rgba(59,130,246,.16); color:#93c5fd; border:1px solid rgba(147,197,253,.40);}
+/* ================= Responsive ================= */
+@media (max-width:991.98px){
+  .sk-dash .sk-wrap{padding:24px 18px 44px;}
+}
+
+/* ================= Shell utility strip (compact currencies + account) ================= */
+.sk-dash .sk-utility{
+  position:sticky; top:0; z-index:800;
+  background:rgba(12,6,28,.74);
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(192,132,252,.14);
+}
+.sk-dash .sk-utility-inner{
+  max-width:1280px; margin:0 auto;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:8px 32px;
+}
+.sk-dash .sk-utility .student-currencies{gap:8px;}
+.sk-dash .sk-utility .currency-display{
+  padding:5px 12px; border-radius:999px; font-size:.8rem; font-weight:700;
+  background:rgba(255,255,255,.05); border:1px solid rgba(192,132,252,.22);
+}
+.sk-dash .sk-utility .dropdown-toggle{gap:6px; font-size:.8rem; font-weight:700; color:rgba(228,224,255,.85);}
+.sk-dash .sk-utility .dropdown-toggle .rounded-circle{width:36px !important; height:36px !important; border-color:rgba(250,205,255,.45) !important; box-shadow:0 0 12px rgba(236,72,153,.30);}
+.sk-dash .sk-utility .dropdown-menu{right:0; left:auto; min-width:210px;}
+
+/* ================= Mobile drawer ================= */
+.sk-burger{
+  display:none; flex:0 0 auto; align-items:center; justify-content:center;
+  width:42px; height:42px; border-radius:12px; cursor:pointer;
+  background:rgba(168,85,247,.16); border:1px solid rgba(192,132,252,.38);
+  color:#fbcfe8; font-size:1.3rem;
+  box-shadow:0 4px 14px rgba(4,2,16,.40);
+}
+.sk-side-overlay{display:none;}
+@media (max-width:991.98px){
+  .sk-burger{display:flex;}
+  .sk-dash .sk-side{
+    transform:translateX(-106%);
+    transition:transform .3s ease;
+    width:min(78vw,300px);
+    padding-top:70px;
+  }
+  .sk-dash .sk-side.is-open{transform:translateX(0);}
+  .sk-dash .sk-side-overlay{
+    display:block; position:fixed; inset:0; z-index:890;
+    background:rgba(6,3,16,.55); opacity:0; pointer-events:none; transition:opacity .3s ease;
+  }
+  body.sk-nav-open .sk-dash .sk-side-overlay{opacity:1; pointer-events:auto;}
+  body.sk-nav-open{overflow:hidden;}
+  .sk-dash .sk-utility-inner{padding:8px 18px;}
+  .sk-dash .sk-utility .student-currencies{gap:6px; flex-wrap:wrap;}
+}
+
+/* ================= Student content theme (all pages inside the shell main) ================= */
+.sk-dash main{color:var(--sk-text);}
+.sk-dash main .text-muted{color:var(--sk-mute) !important;}
+.sk-dash main .text-white-50{color:rgba(226,220,255,.60) !important;}
+.sk-dash main h1, .sk-dash main h2, .sk-dash main h3, .sk-dash main h4, .sk-dash main h5{color:var(--sk-text);}
+/* Buttons — Dashboard button language */
+.sk-dash main .btn{border-radius:999px; font-weight:700; transition:transform .2s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease, color .2s ease;}
+.sk-dash main .btn-primary{
+  background:linear-gradient(120deg,#9333ea,#db2777); border:1px solid rgba(250,205,255,.35); color:#fff !important;
+  box-shadow:0 8px 22px rgba(147,51,234,.35), 0 0 14px rgba(236,72,153,.22);
+}
+.sk-dash main .btn-primary:hover{transform:translateY(-2px); color:#fff !important;
+  box-shadow:0 12px 26px rgba(147,51,234,.50), 0 0 20px rgba(236,72,153,.30);}
+.sk-dash main .btn-outline-light{
+  background:rgba(255,255,255,.05); border:1px solid rgba(192,132,252,.40); color:#e9d5ff !important;
+}
+.sk-dash main .btn-outline-light:hover{background:rgba(168,85,247,.18); border-color:rgba(216,180,254,.60); color:#fff !important; transform:translateY(-2px);}
+.sk-dash main .btn-outline-warning{border-color:rgba(251,191,36,.45); color:#fcd34d !important; background:rgba(251,191,36,.06);}
+.sk-dash main .btn-outline-warning:hover{background:rgba(251,191,36,.14); color:#fde68a !important;}
+.sk-dash main .btn-success{background:linear-gradient(120deg,#8b5cf6,#ec4899); border:1px solid rgba(250,205,255,.30); color:#fff !important;}
+.sk-dash main .btn-light{background:rgba(255,255,255,.92); color:#1c1033 !important; border:1px solid rgba(192,132,252,.35);}
+.sk-dash main .btn:disabled, .sk-dash main .btn[disabled]{opacity:.5; transform:none; box-shadow:none;}
+/* Cards / panels — glass */
+.sk-dash main .card{
+  background:var(--sk-card); border:1px solid var(--sk-line); border-radius:18px; color:var(--sk-text);
+  backdrop-filter:blur(16px) saturate(140%); -webkit-backdrop-filter:blur(16px) saturate(140%);
+  box-shadow:0 12px 36px rgba(4,2,16,.45), 0 0 22px rgba(139,92,246,.07), inset 0 1px 0 rgba(255,255,255,.05);
+}
+.sk-dash main .card.bg-dark{background:var(--sk-card) !important; border-color:var(--sk-line) !important;}
+.sk-dash main .rounded-4.bg-secondary{background:rgba(255,255,255,.05) !important; border-color:var(--sk-line) !important;}
+/* Alerts */
+.sk-dash main .alert{
+  background:rgba(168,85,247,.10); border:1px solid rgba(192,132,252,.35); color:#f5f3ff;
+  border-radius:14px; backdrop-filter:blur(10px);
+}
+.sk-dash main .alert-success{background:rgba(34,197,94,.10); border-color:rgba(134,239,172,.40);}
+.sk-dash main .alert-danger{background:rgba(239,68,68,.10); border-color:rgba(252,165,165,.40);}
+.sk-dash main .alert-info{background:rgba(59,130,246,.10); border-color:rgba(147,197,253,.40);}
+/* Badges */
+.sk-dash main .badge{letter-spacing:.05em; font-weight:700;}
+.sk-dash main .badge.bg-success{background:linear-gradient(120deg,#22c55e,#10b981) !important;}
+.sk-dash main .badge.bg-secondary{background:rgba(255,255,255,.07) !important; color:#e9d5ff !important; border:1px solid rgba(192,132,252,.30);}
+.sk-dash main .badge.bg-light{background:linear-gradient(120deg,#c084fc,#f9a8d4) !important; color:#2a1148 !important;}
+.sk-dash main .badge.bg-danger{background:rgba(239,68,68,.85) !important;}
+.sk-dash main .badge.bg-primary{background:linear-gradient(120deg,#9333ea,#db2777) !important;}
+/* Progress */
+.sk-dash main .progress{background:rgba(255,255,255,.09); border-radius:99px; overflow:hidden;}
+.sk-dash main .progress-bar{background:linear-gradient(90deg,#8b5cf6,#ec4899); box-shadow:0 0 12px rgba(168,85,247,.55);}
+.sk-dash main .progress-bar.bg-success{background:linear-gradient(90deg,#22c55e,#4ade80) !important;}
+/* Forms — no white Bootstrap forms */
+.sk-dash main .form-control, .sk-dash main .form-select, .sk-dash main textarea.form-control{
+  background:rgba(255,255,255,.05); border:1px solid rgba(192,132,252,.28); color:var(--sk-text);
+  border-radius:12px;
+}
+.sk-dash main .form-control:focus, .sk-dash main .form-select:focus{
+  background:rgba(255,255,255,.07); border-color:rgba(216,180,254,.65); color:var(--sk-text);
+  box-shadow:0 0 0 .20rem rgba(168,85,247,.22);
+}
+.sk-dash main .form-control::placeholder{color:rgba(226,220,255,.45);}
+.sk-dash main .form-control.bg-dark{background:rgba(255,255,255,.05) !important; color:var(--sk-text) !important;}
+.sk-dash main .form-label{color:var(--sk-mute); font-size:.74rem; font-weight:700; letter-spacing:.10em; text-transform:uppercase;}
+.sk-dash main .input-group .btn{border-radius:12px;}
+.sk-dash main .form-check-input:checked{background-color:#a855f7; border-color:#c084fc;}
+/* Settings list-group */
+.sk-dash main .list-group-item{background:transparent; color:rgba(228,224,255,.80); border:0;}
+/* Misc chrome */
+.sk-dash main hr{border-color:rgba(255,255,255,.10) !important;}
+.sk-dash main .table{color:var(--sk-text); --bs-table-bg:transparent;}
+.sk-dash main .bg-dark{--bs-bg-opacity:1;}
+
+/* ================= Footer clears the fixed sidebar ================= */
+.sk-dash-footer{--sk-side-w:252px;}
+@media (min-width:992px){
+  .sk-dash-footer{margin-left:var(--sk-side-w);}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .sk-dash .sk-orb, .sk-dash .sk-petal{animation:none !important;}
+  .sk-dash .sk-stat:hover, .sk-dash .sk-btn:hover, .sk-dash .sk-nav-a:hover{transform:none !important;}
+}
+</style>
+        <style>
+/* ================= Hero ================= */
+.sk-dash .sk-hero{
+  position:relative; display:flex; align-items:stretch; overflow:hidden;
+  min-height:330px; margin-bottom:24px; border-radius:22px;
+}
+.sk-dash .sk-hero-art{position:absolute; inset:0;}
+.sk-dash .sk-hero-art svg{position:absolute; inset:0; width:100%; height:100%; display:block;}
+.sk-dash .sk-hero-veil{
+  position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(95deg,
+    rgba(9,5,24,.95) 0%, rgba(9,5,24,.90) 38%,
+    rgba(9,5,24,.50) 60%, rgba(9,5,24,.10) 82%, rgba(9,5,24,.32) 100%);
+}
+.sk-dash .sk-hero-left{
+  position:relative; z-index:2; width:min(60%,640px);
+  padding:32px 36px 30px; display:flex; flex-direction:column; gap:15px;
+}
+.sk-dash .sk-toprow{display:flex; align-items:center; gap:13px;}
+.sk-dash .sk-avatar{
+  flex:0 0 auto; width:52px; height:52px; border-radius:50%;
+  display:grid; place-items:center; font-weight:800; font-size:1.2rem; color:#fff;
+  background:linear-gradient(135deg,#8b5cf6,#ec4899);
+  border:2px solid rgba(250,205,255,.55);
+  box-shadow:0 0 18px rgba(236,72,153,.45);
+}
+.sk-dash .sk-hello{
+  margin:0; font-size:clamp(1.22rem,1.9vw,1.6rem); font-weight:800;
+  line-height:1.25; letter-spacing:.01em;
+}
+.sk-dash .sk-sub{margin:3px 0 0; font-size:.84rem; color:var(--sk-mute); line-height:1.5;}
+.sk-dash .sk-level-row{display:flex; align-items:center; gap:13px;}
+.sk-dash .sk-level-badge{
+  flex:0 0 auto; min-width:54px; height:52px; padding:0 12px; border-radius:14px;
+  display:grid; place-items:center; font-weight:800; font-size:1.08rem; color:#fff;
+  background:linear-gradient(140deg,rgba(168,85,247,.55),rgba(236,72,153,.42));
+  border:1px solid rgba(250,205,255,.50);
+  box-shadow:0 0 16px rgba(168,85,247,.40);
+}
+.sk-dash .sk-level-meta span{
+  display:block; font-size:.66rem; font-weight:700; letter-spacing:.16em;
+  text-transform:uppercase; color:#f9a8d4;
+}
+.sk-dash .sk-level-meta b{display:block; margin-top:3px; font-size:.92rem; font-weight:600; color:#ede9fe;}
+.sk-dash .sk-prog{
+  padding:14px 16px; border-radius:14px;
+  background:rgba(255,255,255,.05); border:1px solid rgba(192,132,252,.20);
+  backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+}
+.sk-dash .sk-prog-head{
+  display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+  font-size:.74rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--sk-mute);
+}
+.sk-dash .sk-prog-head strong{
+  font-size:1.45rem; font-weight:800; letter-spacing:0; text-transform:none;
+  background:linear-gradient(120deg,#e9d5ff,#f9a8d4);
+  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+}
+.sk-dash .sk-prog-track{
+  height:9px; margin:10px 0 9px; border-radius:99px; overflow:hidden;
+  background:rgba(255,255,255,.09);
+}
+.sk-dash .sk-prog-fill{
+  height:100%; border-radius:inherit;
+  background:linear-gradient(90deg,#8b5cf6,#ec4899);
+  box-shadow:0 0 12px rgba(168,85,247,.60);
+  transition:width .6s ease;
+}
+.sk-dash .sk-prog-foot{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  font-size:.74rem; color:var(--sk-mute);
+}
+.sk-dash .sk-hero-cta{display:flex; flex-wrap:wrap; gap:12px;}
+.sk-dash .sk-nextup{
+  margin:0; font-size:.8rem; color:#fbcfe8;
+  display:flex; align-items:center; gap:7px;
+}
+.sk-dash .sk-nextup i{color:#f472b6;}
+.sk-dash .sk-quote{
+  position:absolute; right:24px; bottom:22px; z-index:3; max-width:236px; margin:0;
+  padding:16px 18px; border-radius:16px;
+  background:rgba(15,8,34,.66);
+  border:1px solid rgba(250,205,255,.30);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  box-shadow:0 10px 28px rgba(4,2,16,.50), 0 0 22px rgba(236,72,153,.20);
+}
+.sk-dash .sk-quote p{margin:0; font-size:1.04rem; font-weight:700; line-height:1.65; color:#fce7f3;}
+.sk-dash .sk-quote small{
+  display:block; margin-top:9px; font-size:.7rem; line-height:1.55;
+  font-style:italic; color:rgba(226,220,255,.72);
+}
+/* ================= Stat cards (exactly 3) ================= */
+.sk-dash .sk-stats{
+  display:grid; grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:20px; margin-bottom:24px;
+}
+.sk-dash .sk-stat{
+  display:flex; align-items:center; gap:14px; padding:17px 18px; border-radius:16px;
+  transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.sk-dash .sk-stat:hover{
+  transform:translateY(-4px); border-color:rgba(216,180,254,.42);
+  box-shadow:0 16px 40px rgba(4,2,16,.50), 0 0 26px rgba(168,85,247,.18);
+}
+.sk-dash .sk-stat-ic{
+  flex:0 0 auto; width:48px; height:48px; border-radius:14px;
+  display:grid; place-items:center; font-size:1.32rem;
+}
+.sk-dash .sk-ic-flame{
+  background:radial-gradient(circle at 30% 25%,rgba(251,146,60,.38),rgba(249,115,22,.14));
+  border:1px solid rgba(251,146,60,.50); color:#fb923c;
+  box-shadow:0 0 16px rgba(251,146,60,.35);
+}
+.sk-dash .sk-ic-heart{
+  background:radial-gradient(circle at 30% 25%,rgba(244,114,182,.38),rgba(236,72,153,.14));
+  border:1px solid rgba(244,114,182,.50); color:#f472b6;
+  box-shadow:0 0 16px rgba(244,114,182,.35);
+}
+.sk-dash .sk-ic-gem{
+  background:radial-gradient(circle at 30% 25%,rgba(167,139,250,.40),rgba(139,92,246,.14));
+  border:1px solid rgba(167,139,250,.55); color:#a78bfa;
+  box-shadow:0 0 16px rgba(167,139,250,.35);
+}
+.sk-dash .sk-stat-body{flex:1; min-width:0;}
+.sk-dash .sk-stat-label{
+  display:block; font-size:.66rem; font-weight:700; letter-spacing:.17em;
+  text-transform:uppercase; color:var(--sk-mute);
+}
+.sk-dash .sk-stat-value{display:block; margin-top:3px; font-size:1.6rem; font-weight:800; line-height:1.12;}
+.sk-dash .sk-stat-value em{font-size:.76rem; font-weight:600; font-style:normal; color:var(--sk-mute);}
+.sk-dash .sk-stat-sub{display:block; margin-top:4px; font-size:.7rem; color:rgba(226,220,255,.60);}
+.sk-dash .sk-stat-sub.is-ok{color:#86efac; font-weight:700;}
+.sk-dash .sk-stat-arrow{margin-left:auto; font-size:.95rem; color:rgba(216,180,254,.55);}
+
+/* ================= Two-column panels ================= */
+.sk-dash .sk-grid{
+  display:grid; grid-template-columns:minmax(0,7fr) minmax(0,5fr);
+  gap:22px; margin-bottom:24px; align-items:start;
+}
+.sk-dash .sk-panel{padding:24px 24px 16px;}
+.sk-dash .sk-panel-head{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+  margin-bottom:12px;
+}
+.sk-dash .sk-panel-head h2{margin:0; font-size:1.02rem; font-weight:800;}
+.sk-dash .sk-panel-head p{margin:4px 0 0; font-size:.74rem; color:var(--sk-mute);}
+.sk-dash .sk-panel-link{
+  font-size:.75rem; font-weight:700; color:#f9a8d4; text-decoration:none; white-space:nowrap;
+}
+.sk-dash .sk-panel-link:hover{color:#fbcfe8; text-decoration:underline;}
+.sk-dash .sk-levels{list-style:none; margin:0; padding:0;}
+.sk-dash .sk-level{
+  display:flex; align-items:center; gap:14px; flex-wrap:nowrap;
+  padding:13px 6px; border-top:1px solid rgba(255,255,255,.06);
+  text-decoration:none; color:inherit;
+  transition:background .2s ease, border-radius .2s ease;
+}
+.sk-dash .sk-level:first-child{border-top:0;}
+.sk-dash a.sk-level:hover{background:rgba(255,255,255,.05); border-radius:12px;}
+.sk-dash .sk-lvl-badge{
+  flex:0 0 auto; width:46px; height:34px; border-radius:10px;
+  display:grid; place-items:center; font-size:.8rem; font-weight:800;
+  white-space:nowrap; overflow:hidden; padding:0 6px; line-height:1;
+  background:rgba(168,85,247,.22); border:1px solid rgba(216,180,254,.40); color:#e9d5ff;
+}
+.sk-dash .sk-level.is-done .sk-lvl-badge{
+  background:rgba(34,197,94,.18); border-color:rgba(134,239,172,.45); color:#86efac;
+}
+.sk-dash .sk-level.is-locked .sk-lvl-badge{
+  background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.14); color:rgba(226,220,255,.45);
+}
+.sk-dash .sk-lvl-mid{flex:1 1 auto; min-width:0;}
+.sk-dash .sk-lvl-name{
+  display:block; margin-bottom:3px;
+  font-size:.85rem; font-weight:600; line-height:1.4;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.sk-dash .sk-lvl-desc{
+  display:block; margin-bottom:3px;
+  font-size:.72rem; line-height:1.45; color:var(--sk-mute);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.sk-dash .sk-level.is-locked .sk-lvl-name{color:rgba(226,220,255,.55);}
+.sk-dash .sk-lvl-track{
+  margin-top:4px;
+  height:7px; border-radius:99px; overflow:hidden; background:rgba(255,255,255,.08);
+}
+.sk-dash .sk-lvl-fill{
+  height:100%; border-radius:inherit;
+  background:linear-gradient(90deg,#8b5cf6,#ec4899);
+  box-shadow:0 0 10px rgba(168,85,247,.55); transition:width .5s ease;
+}
+.sk-dash .sk-level.is-locked .sk-lvl-fill{background:rgba(255,255,255,.14); box-shadow:none;}
+.sk-dash .sk-lvl-pct{
+  flex:0 0 auto; width:44px; text-align:right;
+  font-size:.8rem; font-weight:800; color:#e9d5ff;
+}
+.sk-dash .sk-level.is-locked .sk-lvl-pct{color:rgba(226,220,255,.40);}
+.sk-dash .sk-lvl-state{
+  flex:0 0 auto; display:flex; align-items:center; justify-content:flex-end; gap:10px;
+}
+.sk-dash .sk-lvl-chev{flex:0 0 auto; font-size:.78rem; color:rgba(216,180,254,.50);}
+/* Progress rows: dedicated zones so badge/description/percent/status never overlap.
+   Mobile: badge + status + percent on the first line, description + bar full width below. */
+@media (max-width:575.98px){
+  .sk-dash .sk-level{flex-wrap:wrap; row-gap:9px; column-gap:12px; padding:14px 6px;}
+  .sk-dash .sk-lvl-badge{order:1;}
+  .sk-dash .sk-lvl-state{order:2; margin-left:auto;}
+  .sk-dash .sk-lvl-pct{order:3;}
+  .sk-dash .sk-lvl-mid{order:4; flex:1 0 100%;}
+  .sk-dash .sk-lvl-name{white-space:normal; overflow:visible; text-overflow:clip;}
+  .sk-dash .sk-lvl-desc{white-space:normal; overflow:visible; text-overflow:clip;}
+}
+/* ================= Recent activity ================= */
+.sk-dash .sk-acts{list-style:none; margin:0; padding:0;}
+.sk-dash .sk-act{
+  display:flex; align-items:center; gap:12px;
+  padding:12px 6px; border-top:1px solid rgba(255,255,255,.06);
+  text-decoration:none; color:inherit;
+  transition:background .2s ease;
+}
+.sk-dash .sk-act:first-child{border-top:0;}
+.sk-dash a.sk-act:hover{background:rgba(255,255,255,.05); border-radius:12px;}
+.sk-dash .sk-act-ic{
+  flex:0 0 auto; width:38px; height:38px; border-radius:11px;
+  display:grid; place-items:center; font-size:.95rem; color:#f9a8d4;
+  background:rgba(236,72,153,.16); border:1px solid rgba(244,114,182,.35);
+}
+.sk-dash .sk-act-mid{flex:1; min-width:0;}
+.sk-dash .sk-act-title{
+  display:block; font-size:.85rem; font-weight:650;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.sk-dash .sk-act-meta{display:block; margin-top:2px; font-size:.7rem; color:var(--sk-mute);}
+.sk-dash .sk-act-right{
+  display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex:0 0 auto;
+}
+.sk-dash .sk-act-time{font-size:.66rem; color:rgba(226,220,255,.50); white-space:nowrap;}
+.sk-dash .sk-empty{
+  padding:28px 8px; text-align:center; font-size:.8rem; color:var(--sk-mute);
+}
+
+/* ================= Continue Learning (wide bottom card) ================= */
+.sk-dash .sk-continue{
+  position:relative; display:flex; align-items:center; gap:22px;
+  padding:22px 26px; border-radius:20px; overflow:hidden;
+}
+.sk-dash .sk-continue::after{
+  content:""; position:absolute; right:-40px; top:-60px; width:240px; height:240px;
+  border-radius:50%; pointer-events:none;
+  background:radial-gradient(circle,rgba(236,72,153,.22),transparent 70%);
+}
+.sk-dash .sk-cont-art{
+  flex:0 0 auto; width:78px; height:78px; border-radius:18px;
+  display:grid; place-items:center; font-size:2rem;
+  background:linear-gradient(140deg,rgba(168,85,247,.40),rgba(236,72,153,.34));
+  border:1px solid rgba(250,205,255,.45);
+  box-shadow:0 0 22px rgba(216,180,254,.35);
+}
+.sk-dash .sk-cont-mid{flex:1; min-width:0; position:relative; z-index:1;}
+.sk-dash .sk-cont-kicker{
+  font-size:.66rem; font-weight:700; letter-spacing:.2em;
+  text-transform:uppercase; color:#f9a8d4;
+}
+.sk-dash .sk-cont-mid h3{margin:5px 0 4px; font-size:1.18rem; font-weight:800;}
+.sk-dash .sk-cont-mid p{margin:0; font-size:.8rem; color:var(--sk-mute);}
+.sk-dash .sk-cont-cta{position:relative; z-index:1; flex:0 0 auto;}
+
+/* ================= Responsive ================= */
+@media (max-width:991.98px){
+  .sk-dash .sk-hero{min-height:0;}
+  .sk-dash .sk-hero-left{width:100%; padding:26px 22px 24px;}
+  .sk-dash .sk-hero-veil{
+    background:linear-gradient(180deg,rgba(9,5,24,.93),rgba(9,5,24,.87) 55%,rgba(9,5,24,.80));
+  }
+  .sk-dash .sk-quote{
+    position:static; max-width:none; margin:0 22px 22px;
+    display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px;
+  }
+  .sk-dash .sk-quote p, .sk-dash .sk-quote small{margin:0;}
+  .sk-dash .sk-stats{grid-template-columns:repeat(auto-fit,minmax(215px,1fr));}
+  .sk-dash .sk-grid{grid-template-columns:1fr;}
+}
+@media (max-width:575.98px){
+  .sk-dash .sk-stats{grid-template-columns:1fr;}
+  .sk-dash .sk-hero-cta .sk-btn{flex:1; justify-content:center;}
+  .sk-dash .sk-toprow{align-items:flex-start;}
+  .sk-dash .sk-continue{flex-direction:column; text-align:center; gap:16px; padding:22px 18px;}
+  .sk-dash .sk-cont-cta{width:100%;}
+  .sk-dash .sk-cont-cta .sk-btn{width:100%; justify-content:center;}
+  .sk-dash .sk-panel{padding:20px 16px 12px;}
+  .sk-dash .sk-lvl-pct{width:38px;}
+}
+</style>
+</head>
+<body>
+
+                
+
+
+
+    <div class="sk-dash">
+        <div class="sk-bg" aria-hidden="true">
+    <span class="sk-orb sk-orb-1"></span>
+    <span class="sk-orb sk-orb-2"></span>
+    <span class="sk-orb sk-orb-3"></span>
+    <span class="sk-petal" style="left:6%; animation-delay:-2s;"></span>
+    <span class="sk-petal" style="left:17%; animation-delay:-7s;"></span>
+    <span class="sk-petal" style="left:29%; animation-delay:-13s;"></span>
+    <span class="sk-petal" style="left:41%; animation-delay:-4s;"></span>
+    <span class="sk-petal" style="left:54%; animation-delay:-18s;"></span>
+    <span class="sk-petal" style="left:66%; animation-delay:-9s;"></span>
+    <span class="sk-petal" style="left:78%; animation-delay:-15s;"></span>
+    <span class="sk-petal" style="left:89%; animation-delay:-21s;"></span>
+    <span class="sk-wm">桜</span>
+</div>
+        <aside class="sk-side" aria-label="Student navigation">
+    <a class="sk-brand" href="http://localhost">
+        <span class="sk-brand-mark" aria-hidden="true">🌸</span>
+        <span>
+            <span class="sk-brand-name">SakuraLearn</span>
+            <small class="sk-brand-sub">SAKURA STUDY</small>
+        </span>
+    </a>
+    <nav class="sk-nav">
+        <a class="sk-nav-a is-active" href="http://localhost/dashboard"  aria-current="page" ><i class="bi bi-speedometer2" aria-hidden="true"></i> Dashboard</a>
+        <a class="sk-nav-a " href="http://localhost/select-level" ><i class="bi bi-mortarboard" aria-hidden="true"></i> Training</a>
+        <a class="sk-nav-a " href="http://localhost/student/exams" ><i class="bi bi-clipboard2-check" aria-hidden="true"></i> Exams</a>
+        <a class="sk-nav-a " href="http://localhost/leaderboard" ><i class="bi bi-trophy" aria-hidden="true"></i> Leaderboard</a>
+        <a class="sk-nav-a " href="http://localhost/bookmarks" ><i class="bi bi-bookmark-star" aria-hidden="true"></i> Bookmarks</a>
+        <a class="sk-nav-a " href="http://localhost/review-mistakes" ><i class="bi bi-arrow-repeat" aria-hidden="true"></i> Review Mistakes</a>
+        <div class="sk-nav-sep" role="separator"></div>
+        <a class="sk-nav-a " href="http://localhost/profile" ><i class="bi bi-gear" aria-hidden="true"></i> Settings</a>
+        <a class="sk-nav-a" href="http://localhost"><i class="bi bi-house-door" aria-hidden="true"></i> Back to Home</a>
+    </nav>
+    <p class="sk-side-foot">🌸 一歩ずつ · step by step</p>
+</aside>        <div class="sk-side-overlay" aria-hidden="true"></div>
+        <div class="sk-main">
+            <div class="sk-utility">
+    <div class="sk-utility-inner">
+        <button class="sk-burger" type="button" aria-expanded="false" aria-label="Toggle navigation"><i class="bi bi-list" aria-hidden="true"></i></button>
+                            <div class="student-currencies" id="student-currencies"
+                                 data-heart-status-url="http://localhost/student/hearts"
+                                 data-heart-seconds="0"
+                                 data-heart-full-seconds="0"
+                                 data-heart-interval="300"
+                                 data-max-hearts="5">
+                                <div class="daily-streak-status">
+                                    <button type="button" id="daily-streak-trigger" class="currency-display daily-streak-trigger " aria-label="Daily streak, 0 days" aria-describedby="daily-streak-popover">
+                                        <span class="currency-icon">🔥</span><span id="daily-streak-count">0</span>
+                                    </button>
+                                    <div class="daily-streak-popover" id="daily-streak-popover" role="status">
+                                        <div class="daily-streak-title">Daily Streak</div>
+                                        <div class="daily-streak-value">🔥 <span id="daily-streak-value">0</span> days</div>
+                                        <div class="daily-streak-message">Keep learning every day!</div>
+                                        <div id="daily-streak-today" class="daily-streak-today is-pending">
+                                            Learn today to continue your streak
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="heart-status">
+                                    <button type="button" class="heart-status-trigger" aria-label="Hearts and regeneration status" aria-describedby="heart-popover">
+                                        <span class="currency-icon">❤️</span><span id="navbar-heart-count">5/5</span>
+                                    </button>
+                                    <div class="heart-popover" id="heart-popover" role="status">
+                                        <div class="heart-popover-top">
+                                            <div class="heart-slots" id="heart-slots" aria-label="5 of 5 hearts">
+                                                                                                    <span class="heart-slot is-filled" aria-hidden="true">❤️</span>
+                                                                                                    <span class="heart-slot is-filled" aria-hidden="true">❤️</span>
+                                                                                                    <span class="heart-slot is-filled" aria-hidden="true">❤️</span>
+                                                                                                    <span class="heart-slot is-filled" aria-hidden="true">❤️</span>
+                                                                                                    <span class="heart-slot is-filled" aria-hidden="true">❤️</span>
+                                                                                            </div>
+                                            <span class="heart-popover-count"><span id="heart-popover-count">5</span>/5</span>
+                                        </div>
+                                        <div class="heart-full-state" id="heart-full-state" >❤️ Hearts Full <span class="text-white-50" id="heart-full-count">5/5</span></div>
+                                        <div id="heart-countdown-section"  hidden >
+                                            <div class="heart-countdown">
+                                                <i class="bi bi-clock heart-clock" aria-hidden="true"></i>
+                                                <div>
+                                                    <strong class="heart-countdown-time" id="heart-next-countdown">00:00</strong>
+                                                    <div class="heart-countdown-label">Next Heart</div>
+                                                </div>
+                                            </div>
+                                            <div class="heart-progress-track" id="heart-progress-track" role="progressbar" aria-label="Progress to next heart" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+                                                <span class="heart-progress-fill" id="heart-progress-fill" style="width: 100%"></span>
+                                            </div>
+                                        </div>
+                                        <div class="heart-popover-gems"><span>💎 <span id="navbar-gem-count">200</span></span></div>
+                                                                                                                    </div>
+                                </div>
+                                <span class="currency-display" aria-label="Gems"><span class="currency-icon">💎</span><span id="navbar-gem-total">200</span></span>
+                            </div>
+                        <div class="dropdown">
+                            <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="rounded-circle overflow-hidden border border-secondary" style="width: 50px; height: 50px;">
+                                                                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Elaina McCullough" alt="Default Avatar" class="w-100 h-100 object-fit-cover">
+                                                                    </div>
+                            </a>
+                            
+                            <!-- dropdown-menu-glass class -->
+                            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-glass text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1">
+                                                                    
+                                    <li><a class="dropdown-item py-2" href="http://localhost/dashboard"><i class="bi bi-speedometer2 me-2"></i> My Dashboard</a></li>
+                                                                                                <li><hr class="dropdown-divider border-secondary border-opacity-25"></li>
+                                <li>
+                                    <form action="http://localhost/logout" method="POST">
+                                        <input type="hidden" name="_token" value="fNYzmqQCtBgXhuwtG3wkNPC68awMXZqhTjBK6Elk" autocomplete="off">                                        <button type="submit" class="dropdown-item text-danger py-2"><i class="bi bi-box-arrow-right me-2"></i> Logout</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+    </div>
+</div>
+            <div class="sk-wrap">
+
+    <!-- Main Dynamic Content -->
+    <main>
+                
+        <section class="sk-hero sk-glass" aria-label="Welcome back">
+            <div class="sk-hero-art" aria-hidden="true">
+                <svg viewBox="0 0 1200 340" preserveAspectRatio="xMidYMid slice" focusable="false">
+                    <defs>
+                        <linearGradient id="skSky" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0" stop-color="#140a33"/>
+                            <stop offset=".55" stop-color="#1d1047"/>
+                            <stop offset="1" stop-color="#3d1259"/>
+                        </linearGradient>
+                        <linearGradient id="skFuji" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0" stop-color="#6d3bb5"/>
+                            <stop offset="1" stop-color="#2a1553"/>
+                        </linearGradient>
+                        <radialGradient id="skMoonG">
+                            <stop offset="0" stop-color="#fde68a" stop-opacity=".85"/>
+                            <stop offset="1" stop-color="#fde68a" stop-opacity="0"/>
+                        </radialGradient>
+                        <linearGradient id="skTorii" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0" stop-color="#f472b6"/>
+                            <stop offset="1" stop-color="#be185d"/>
+                        </linearGradient>
+                        <linearGradient id="skGround" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0" stop-color="#1c0f42"/>
+                            <stop offset="1" stop-color="#0d0624"/>
+                        </linearGradient>
+                    </defs>
+                    <rect width="1200" height="340" fill="url(#skSky)"/>
+                    <circle cx="620" cy="42" r="1.7" fill="#fff" opacity=".75"/>
+                    <circle cx="726" cy="74" r="1.3" fill="#fff" opacity=".6"/>
+                    <circle cx="862" cy="34" r="1.8" fill="#fff" opacity=".8"/>
+                    <circle cx="1142" cy="62" r="1.5" fill="#fff" opacity=".7"/>
+                    <circle cx="648" cy="118" r="1.2" fill="#fff" opacity=".5"/>
+                    <circle cx="905" cy="148" r="1.4" fill="#fff" opacity=".55"/>
+                    <circle cx="1164" cy="146" r="1.3" fill="#fff" opacity=".5"/>
+                    <circle cx="778" cy="160" r="1.2" fill="#fff" opacity=".45"/>
+                    <circle cx="965" cy="72" r="66" fill="url(#skMoonG)"/>
+                    <circle cx="965" cy="72" r="30" fill="#fef3c7" opacity=".92"/>
+                    <circle cx="954" cy="64" r="5" fill="#fde68a" opacity=".55"/>
+                    <circle cx="976" cy="83" r="7" fill="#fde68a" opacity=".4"/>
+                    <path d="M740 110 q42 -20 84 0 q36 -12 64 8 q-32 16 -74 12 q-44 6 -74 -20Z" fill="#c084fc" opacity=".16"/>
+                    <path d="M1006 178 q34 -14 68 0 q28 -8 50 8 q-26 12 -58 8 q-36 4 -60 -16Z" fill="#f9a8d4" opacity=".13"/>
+                    <path d="M455 302 L700 92 L948 302 Z" fill="url(#skFuji)" opacity=".96"/>
+                    <path d="M700 92 L948 302 L866 302 Z" fill="#000" opacity=".16"/>
+                    <path d="M645 140 L700 92 L757 142 C743 131 730 139 716 131 C702 123 689 134 675 130 C664 127 654 134 645 140 Z" fill="#ede9fe" opacity=".9"/>
+                    <rect y="288" width="1200" height="52" fill="url(#skGround)"/>
+                    <ellipse cx="1068" cy="300" rx="120" ry="10" fill="#f472b6" opacity=".12"/>
+                    <rect x="1014" y="178" width="13" height="124" rx="3" fill="url(#skTorii)"/>
+                    <rect x="1102" y="178" width="13" height="124" rx="3" fill="url(#skTorii)"/>
+                    <path d="M984 160 Q1068 146 1152 160 L1152 177 Q1068 163 984 177 Z" fill="url(#skTorii)"/>
+                    <rect x="998" y="194" width="132" height="11" rx="3" fill="#db2777"/>
+                    <rect x="1055" y="177" width="18" height="19" fill="#db2777"/>
+                    <path d="M1200 12 C1132 24 1080 52 1042 90 C1018 114 1000 132 986 148" stroke="#2b0f52" stroke-width="7" fill="none" stroke-linecap="round"/>
+                    <path d="M1112 40 q14 22 12 46" stroke="#2b0f52" stroke-width="4" fill="none" stroke-linecap="round"/>
+                    <path d="M1036 94 q-20 8 -34 28" stroke="#2b0f52" stroke-width="4" fill="none" stroke-linecap="round"/>
+                    <g fill="#f9a8d4" opacity=".92">
+                        <circle cx="1114" cy="34" r="6"/><circle cx="1126" cy="38" r="6"/>
+                        <circle cx="1122" cy="50" r="6"/><circle cx="1108" cy="48" r="6"/>
+                        <circle cx="1054" cy="66" r="6"/><circle cx="1066" cy="70" r="6"/>
+                        <circle cx="1060" cy="82" r="6"/><circle cx="1046" cy="78" r="6"/>
+                        <circle cx="1004" cy="112" r="5.5"/><circle cx="1016" cy="116" r="5.5"/>
+                        <circle cx="1010" cy="128" r="5.5"/><circle cx="996" cy="124" r="5.5"/>
+                        <circle cx="978" cy="146" r="5"/><circle cx="990" cy="152" r="5"/>
+                        <circle cx="982" cy="162" r="5"/>
+                    </g>
+                    <g fill="#fde68a">
+                        <circle cx="1116" cy="43" r="2.6"/><circle cx="1055" cy="75" r="2.6"/>
+                        <circle cx="1005" cy="121" r="2.4"/><circle cx="984" cy="154" r="2.2"/>
+                    </g>
+                    <ellipse cx="1028" cy="192" rx="4" ry="6" fill="#fbcfe8" opacity=".75" transform="rotate(24 1028 192)"/>
+                    <ellipse cx="958" cy="232" rx="4" ry="6" fill="#fbcfe8" opacity=".6" transform="rotate(-18 958 232)"/>
+                    <ellipse cx="884" cy="182" rx="3.5" ry="5.5" fill="#fbcfe8" opacity=".5" transform="rotate(40 884 182)"/>
+                </svg>
+            </div>
+            <div class="sk-hero-veil" aria-hidden="true"></div>
+            <div class="sk-hero-left">
+                <div class="sk-toprow">
+                    <span class="sk-avatar" aria-hidden="true">E</span>
+                    <div>
+                        <h1 class="sk-hello">おかえりなさい、Elaina McCullough さん</h1>
+                        <p class="sk-sub">Your learning dashboard — 今日もコツコツ、一歩ずつ進めよう。</p>
+                    </div>
+                </div>
+
+                <div class="sk-level-row">
+                    <span class="sk-level-badge">—</span>
+                    <div class="sk-level-meta">
+                        <span>Current level · Tier —</span>
+                        <b>Start your first lesson</b>
+                    </div>
+                </div>
+
+                <div class="sk-prog">
+                    <div class="sk-prog-head">
+                        <span>Overall progress</span>
+                        <strong><span id="overall-progress-percent">0</span>%</strong>
+                    </div>
+                    <div class="sk-prog-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                        <div class="sk-prog-fill" style="width: 0%"></div>
+                    </div>
+                    <div class="sk-prog-foot">
+                        <span id="lesson-count-summary">0 of 0 lessons completed</span>
+                        <span> track</span>
+                    </div>
+                </div>
+
+                <div class="sk-hero-cta">
+                                            <a class="sk-btn sk-btn-primary" href="http://localhost/select-level">Browse lessons <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+                                        <a class="sk-btn sk-btn-ghost" href="http://localhost/select-level">Levels &amp; Courses</a>
+                </div>
+
+                            </div>
+
+            <figure class="sk-quote">
+                <p lang="ja">一歩ずつ、<br>夢に近づく</p>
+                <small>One step at a time,<br>closer to your dreams.</small>
+            </figure>
+        </section>
+        
+        <section class="sk-stats" aria-label="Daily stats">
+            <div class="sk-stat sk-glass">
+                <span class="sk-stat-ic sk-ic-flame" aria-hidden="true"><i class="bi bi-fire"></i></span>
+                <div class="sk-stat-body">
+                    <span class="sk-stat-label">Daily Streak</span>
+                    <span class="sk-stat-value"><span id="stat-daily-streak">0</span> <em>days</em></span>
+                                            <span class="sk-stat-sub">Complete a lesson to extend your streak</span>
+                                    </div>
+                <i class="bi bi-arrow-right sk-stat-arrow" aria-hidden="true"></i>
+            </div>
+
+            <div class="sk-stat sk-glass">
+                <span class="sk-stat-ic sk-ic-heart" aria-hidden="true"><i class="bi bi-heart-fill"></i></span>
+                <div class="sk-stat-body">
+                    <span class="sk-stat-label">Hearts</span>
+                    <span class="sk-stat-value"><span id="stat-hearts">0/5</span> <em>hearts</em></span>
+                                            <span class="sk-stat-sub">Hearts refill over time</span>
+                                    </div>
+                <i class="bi bi-arrow-right sk-stat-arrow" aria-hidden="true"></i>
+            </div>
+
+            <div class="sk-stat sk-glass">
+                <span class="sk-stat-ic sk-ic-gem" aria-hidden="true"><i class="bi bi-gem"></i></span>
+                <div class="sk-stat-body">
+                    <span class="sk-stat-label">Gems</span>
+                    <span class="sk-stat-value"><span id="stat-gems">0</span> <em>gems</em></span>
+                    <span class="sk-stat-sub">Earned from completed lessons</span>
+                </div>
+                <i class="bi bi-arrow-right sk-stat-arrow" aria-hidden="true"></i>
+            </div>
+        </section>
+        
+        <section class="sk-grid">
+            <div class="sk-panel sk-glass">
+                <div class="sk-panel-head">
+                    <div>
+                        <h2>Progress by Level</h2>
+                        <p>Your journey from A1 to C2 — track every step.</p>
+                    </div>
+                    <a class="sk-panel-link" href="http://localhost/select-level">All levels <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+                </div>
+                <ul class="sk-levels">
+                                    </ul>
+            </div>
+
+            <div class="sk-panel sk-glass">
+                <div class="sk-panel-head">
+                    <div>
+                        <h2>Recent Activity</h2>
+                        <p>Your latest lesson sessions.</p>
+                    </div>
+                </div>
+                <ul class="sk-acts">
+                                            <li class="sk-empty">No activity yet — complete a lesson and it will show up here. <i class="bi bi-flower1" aria-hidden="true"></i></li>
+                                    </ul>
+            </div>
+        </section>
+        
+                <section class="sk-continue sk-glass" aria-label="Continue learning">
+            <div class="sk-cont-art" aria-hidden="true">🌸</div>
+            <div class="sk-cont-mid">
+                <span class="sk-cont-kicker">Continue Learning</span>
+                                    <h3>All caught up 🎉</h3>
+                    <p>Every available lesson is complete — choose a new level to keep your streak alive.</p>
+                            </div>
+            <div class="sk-cont-cta">
+                                    <a class="sk-btn sk-btn-primary" href="http://localhost/select-level">Browse lessons <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+                            </div>
+        </section>
+    </main>
+
+            </div><!-- /.sk-wrap -->
+        </div><!-- /.sk-main -->
+    </div><!-- /.sk-dash -->
+
+    <!-- Footer Component -->
+    <footer class="pt-5 pb-4 border-top border-opacity-10 sk-dash-footer" style="border-color: rgba(255, 255, 255, 0.08) !important;">
+        <div class="container">
+            <div class="row g-4 pb-4">
+                <div class="col-12 col-md-5">
+                    <a href="http://localhost" class="fw-bold fs-4 gradient-text text-decoration-none">SukuraLearn.</a>
+                    <p class="text-muted small mt-2 mb-0">Learn Japanese step by step, from your first words to advanced fluency.</p>
+                    <p class="text-muted small mt-2 mb-0">一歩ずつ、日本語を学びましょう。</p>
+                </div>
+                <div class="col-6 col-md-3">
+                    <h6 class="text-white fw-bold mb-3">Learning</h6>
+                                            <a href="http://localhost/select-level" class="d-block text-muted text-decoration-none small mb-2">Levels and Training</a>
+                                    </div>
+                <div class="col-6 col-md-4">
+                    <h6 class="text-white fw-bold mb-3">Account</h6>
+                                            <a href="http://localhost/profile" class="d-block text-muted text-decoration-none small mb-2">My Profile</a>
+                                                            </div>
+            </div>
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 border-top border-secondary border-opacity-25 pt-3">
+                <small class="text-muted">&copy; 2026 SukuraLearn. All rights reserved.</small>
+                <small class="text-muted">Made for Japanese learners.</small>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Navbar Active Link Switching
+        const navLinks = document.querySelectorAll('.navbar .nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                navLinks.forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+            }); 
+        });
+    </script>
+            <script>
+            (function () {
+                const currencies = document.getElementById('student-currencies');
+                if (!currencies) return;
+
+                const maxHearts = Number(currencies.dataset.maxHearts || 5);
+                const countdown = document.getElementById('heart-next-countdown');
+                const countdownSection = document.getElementById('heart-countdown-section');
+                const fullState = document.getElementById('heart-full-state');
+                const fullCount = document.getElementById('heart-full-count');
+                const progressTrack = document.getElementById('heart-progress-track');
+                const progressFill = document.getElementById('heart-progress-fill');
+                const heartSlots = document.getElementById('heart-slots');
+                const popoverCount = document.getElementById('heart-popover-count');
+                const heartCount = document.getElementById('navbar-heart-count');
+                const gemButton = document.getElementById('gem-heart-refill-button');
+                const gemTotal = document.getElementById('navbar-gem-total');
+                const gemPopoverBalance = document.getElementById('navbar-gem-count');
+                const regenerationInterval = Math.max(1, Number(currencies.dataset.heartInterval || 300));
+                let secondsToNext = Math.max(0, Number(currencies.dataset.heartSeconds || 0));
+                let hearts = Number((heartCount.textContent || '0').split('/')[0]);
+                let gems = Number(gemTotal.textContent || 0);
+                let refillCost = Number(50);
+                let refreshing = false;
+
+                function formatTime(seconds) {
+                    const minutes = Math.floor(seconds / 60).toString().padStart(2, '0');
+                    const remainder = (seconds % 60).toString().padStart(2, '0');
+                    return minutes + ':' + remainder;
+                }
+
+                function renderCountdown() {
+                    const isFull = hearts >= maxHearts;
+                    const progress = isFull ? 100 : Math.max(0, Math.min(100, 100 * (regenerationInterval - secondsToNext) / regenerationInterval));
+                    heartCount.textContent = hearts + '/' + maxHearts;
+                    popoverCount.textContent = String(hearts);
+                    heartSlots.setAttribute('aria-label', hearts + ' of ' + maxHearts + ' hearts');
+                    heartSlots.querySelectorAll('.heart-slot').forEach(function (slot, index) {
+                        const filled = index < hearts;
+                        slot.classList.toggle('is-filled', filled);
+                        slot.classList.toggle('is-empty', !filled);
+                        slot.textContent = filled ? '❤️' : '♡';
+                    });
+                    fullState.hidden = !isFull;
+                    fullCount.textContent = maxHearts + '/' + maxHearts;
+                    countdownSection.hidden = isFull;
+                    if (!isFull) {
+                        countdown.textContent = formatTime(secondsToNext);
+                        progressFill.style.width = progress + '%';
+                        progressTrack.setAttribute('aria-valuenow', String(Math.round(progress)));
+                    }
+                    if (gemButton) {
+                        gemButton.disabled = isFull;
+                        gemButton.textContent = '💎 ' + refillCost.toLocaleString() + ' · Refill Hearts';
+                    }
+                }
+
+                async function refreshFromServer() {
+                    if (refreshing) return;
+                    refreshing = true;
+                    try {
+                        const response = await fetch(currencies.dataset.heartStatusUrl, {
+                            headers: { 'Accept': 'application/json' },
+                            credentials: 'same-origin'
+                        });
+                        if (!response.ok) throw new Error('Heart state refresh failed.');
+                        const state = await response.json();
+                        hearts = Number(state.hearts);
+                        secondsToNext = Math.max(0, Number(state.seconds_to_next_heart));
+                        gems = Number(state.gems);
+                        refillCost = Number(state.gem_refill_cost);
+                        if (gemTotal) gemTotal.textContent = String(gems);
+                        if (gemPopoverBalance) gemPopoverBalance.textContent = String(gems);
+                        renderCountdown();
+                    } catch (error) {
+                        secondsToNext = 5;
+                    } finally {
+                        refreshing = false;
+                    }
+                }
+
+                renderCountdown();
+                window.setInterval(function () {
+                    if (hearts >= maxHearts) return;
+                    if (secondsToNext <= 0) {
+                        refreshFromServer();
+                        return;
+                    }
+                    secondsToNext -= 1;
+                    renderCountdown();
+                }, 1000);
+            })();
+        </script>
+        </body>
+</html>
+

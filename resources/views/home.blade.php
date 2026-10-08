@@ -249,6 +249,10 @@
                 <!-- CTA -->
                 <div class="d-flex flex-wrap align-items-center gap-3">
                     <a href="{{ route('select.level') }}"
+                       @guest
+                       data-bs-toggle="modal"
+                       data-bs-target="#trialAccountModal"
+                       @endguest
                        class="btn btn-lg rounded-pill px-5 py-3 hero-cta">
 
                         <span>Get Started Free</span>
@@ -1989,6 +1993,23 @@
     }
 </style>
 
+
+@guest
+    <div class="modal fade" id="trialAccountModal" tabindex="-1" aria-labelledby="trialAccountModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-white border rounded-4 shadow-lg" style="background: rgba(13, 6, 26, 0.96); border-color: rgba(192, 132, 252, 0.3) !important;">
+                <div class="modal-header border-secondary border-opacity-25">
+                    <h5 class="modal-title fw-bold" id="trialAccountModalLabel">Do you have an account?</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body d-grid gap-3">
+                    <a href="{{ route('login') }}" class="btn btn-outline-light rounded-pill py-2">Yes, I have an account</a>
+                    <a href="{{ route('register') }}" class="btn rounded-pill py-2 text-white" style="background: linear-gradient(135deg, #9333ea, #db2777);">No, I don't have an account</a>
+                </div>
+            </div>
+        </div>
+    </div>
+@endguest
 
 @endsection
 

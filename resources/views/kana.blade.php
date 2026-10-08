@@ -49,7 +49,7 @@
         box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         cursor: pointer;
-        overflow: hidden; /* ဒီလိုင်းလေး အသစ်ထည့်ပေးပါ */
+        overflow: hidden; 
     }
 
     .glass-kana-card:hover {

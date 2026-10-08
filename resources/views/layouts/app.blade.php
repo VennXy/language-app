@@ -163,140 +163,430 @@
         .dropdown-menu-glass .dropdown-divider {
             border-color: rgba(255, 255, 255, 0.1) !important;
         }  
+
+        .student-currencies {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+
+        .currency-display,
+        .heart-status-trigger {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .currency-icon {
+            font-size: 1.25rem;
+            line-height: 1;
+        }
+
+        .heart-status {
+            position: relative;
+        }
+
+        .heart-status-trigger {
+            padding: 0;
+            border: 0;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .heart-popover {
+            position: absolute;
+            z-index: 1100;
+            top: calc(100% + 0.55rem);
+            right: 0;
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-5px);
+            width: min(270px, calc(100vw - 1rem));
+            padding: 0.75rem;
+            color: #fff;
+            background: rgba(18, 17, 29, 0.98);
+            border: 1px solid rgba(255, 255, 255, 0.13);
+            border-radius: 0.8rem;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42), 0 0 16px rgba(251, 191, 36, 0.08);
+            transition: opacity 150ms ease, transform 150ms ease, visibility 150ms ease;
+        }
+
+        .heart-status:hover .heart-popover,
+        .heart-status:focus-within .heart-popover {
+            visibility: visible;
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .daily-streak-status { position: relative; }
+        .daily-streak-trigger { padding: 0; border: 0; background: transparent; cursor: pointer; }
+        .daily-streak-trigger.is-milestone {
+            color: #fcd34d;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.45);
+        }
+        .daily-streak-popover {
+            position: absolute;
+            z-index: 1100;
+            top: calc(100% + 0.55rem);
+            right: 0;
+            width: min(230px, calc(100vw - 1rem));
+            padding: 0.7rem 0.75rem;
+            color: #fff;
+            background: rgba(18, 17, 29, 0.98);
+            border: 1px solid rgba(255, 255, 255, 0.13);
+            border-radius: 0.8rem;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42);
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-5px);
+            transition: opacity 150ms ease, transform 150ms ease, visibility 150ms ease;
+        }
+        .daily-streak-status:hover .daily-streak-popover,
+        .daily-streak-status:focus-within .daily-streak-popover {
+            visibility: visible;
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+        .daily-streak-title { color: rgba(255,255,255,.65); font-size: .68rem; }
+        .daily-streak-value { margin-top: .12rem; font-weight: 750; }
+        .daily-streak-message { margin-top: .4rem; color: rgba(255,255,255,.68); font-size: .7rem; }
+        .daily-streak-today { margin-top: .45rem; font-size: .68rem; }
+        .daily-streak-today.is-done { color: #86efac; }
+        .daily-streak-today.is-pending { color: #fcd34d; }
+
+        .heart-popover-top,
+        .heart-popover-gems {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .heart-slots {
+            display: flex;
+            align-items: center;
+            gap: 0.08rem;
+            min-width: 0;
+        }
+
+        .heart-slot {
+            font-size: 1rem;
+            line-height: 1;
+        }
+
+        .heart-slot.is-empty {
+            color: rgba(255, 255, 255, 0.38);
+        }
+
+        .heart-popover-count {
+            margin-left: 0.45rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .heart-countdown {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            margin-top: 0.65rem;
+        }
+
+        .heart-countdown-time {
+            font-size: 1.15rem;
+            font-variant-numeric: tabular-nums;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+
+        .heart-countdown-label {
+            color: rgba(255, 255, 255, 0.62);
+            font-size: 0.68rem;
+            line-height: 1.1;
+        }
+
+        .heart-progress-track {
+            height: 4px;
+            margin: 0.55rem 0 0.65rem;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 999px;
+        }
+
+        .heart-progress-fill {
+            display: block;
+            height: 100%;
+            background: linear-gradient(90deg, #fb7185, #fbbf24);
+            border-radius: inherit;
+            transition: width 250ms linear;
+        }
+
+        .heart-full-state {
+            margin-top: 0.55rem;
+            color: #fda4af;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .heart-full-state[hidden],
+        #heart-countdown-section[hidden] { display: none !important; }
+
+        .heart-popover-gems {
+            padding-top: 0.45rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.82rem;
+        }
+
+        .gem-refill-action {
+            width: 100%;
+            margin-top: 0.55rem;
+            padding: 0.4rem 0.55rem;
+            color: #fef3c7;
+            background: rgba(255, 255, 255, 0.035);
+            border: 1px solid rgba(251, 191, 36, 0.32);
+            border-radius: 0.55rem;
+            font-size: 0.76rem;
+            font-weight: 650;
+            transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
+        }
+
+        .gem-refill-action:not(:disabled):hover {
+            background: rgba(251, 191, 36, 0.1);
+            border-color: rgba(251, 191, 36, 0.65);
+            transform: translateY(-1px);
+        }
+
+        .gem-refill-action:disabled {
+            color: rgba(255, 255, 255, 0.48);
+            border-color: rgba(255, 255, 255, 0.12);
+            cursor: not-allowed;
+        }
+
+        .heart-popover-message {
+            margin-top: 0.35rem;
+            color: #fcd34d;
+            font-size: 0.68rem;
+            text-align: center;
+        }
+
+        .heart-clock {
+            display: inline-block;
+            margin-right: 0.25rem;
+            animation: heartClockTurn 5s linear infinite;
+        }
+
+        @keyframes heartClockTurn {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .heart-clock { animation: none; }
+        }
+
+        @media (max-width: 575.98px) {
+            .student-currencies { gap: 0.5rem; }
+            .heart-popover { right: 0; }
+        }
     </style>
+    @php($studentShell = $__env->hasSection('student_shell'))
+    @if($studentShell ?? false)
+        @include('partials.student-shell-css')
+    @endif
     @stack('styles')
 </head>
 <body>
-   <!-- Navbar Component -->  
-<header class="sticky-top w-full">
-    <nav class="navbar navbar-expand-lg navbar-dark py-3">
-        <div class="container max-w-7xl">
-            <!-- Brand / Logo -->
-            <a class="navbar-brand fw-extrabold fs-3 gradient-text" href="{{ url('/') }}">SakuraLearn</a>
-            
-            <!-- Mobile Toggle Button (Hamburger) -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
 
-            <!-- Navbar Collapse Wrapper -->
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <!-- Center Navigation Links -->
-                <ul class="navbar-nav mx-auto my-2 my-lg-0 gap-1 align-items-lg-center">
-                    <!-- Home Link -->
-                    <li class="nav-item">
-                        <a href="{{ route('home') }}" class="nav-link px-4 py-2 rounded-pill small fw-medium text-light {{ request()->routeIs('home') ? 'active bg-white bg-opacity-10 text-white' : 'opacity-75' }}">
-                            <i class="bi bi-house me-2"></i> Home
-                        </a>
-                    </li>
+@if(Auth::check() && Auth::user()->role === 'student')
+    @php($heartState = $navbarHeartState ?? ['hearts' => (int) Auth::user()->hearts, 'max_hearts' => 5, 'gems' => (int) Auth::user()->gems, 'seconds_to_next_heart' => 0, 'seconds_to_full_refill' => 0, 'regeneration_seconds' => 300, 'gem_refill_cost' => (int) config('gamification.heart_refill_gem_cost')])
+    @php($dailyStreakState = $navbarDailyStreak ?? ['days' => (int) Auth::user()->daily_streak, 'completed_today' => false])
+    @php($refillCost = (int) $heartState['gem_refill_cost'])
+    @php($heartProgress = $heartState['hearts'] >= $heartState['max_hearts'] ? 100 : max(0, min(100, 100 * ($heartState['regeneration_seconds'] - $heartState['seconds_to_next_heart']) / max(1, $heartState['regeneration_seconds']))))
+@endif
 
-                    <!-- Methods Link -->
-                    <li class="nav-item">
-                        <a href="#methods" class="nav-link px-4 py-2 rounded-pill small fw-medium text-light opacity-75">
-                            <i class="bi bi-mortarboard me-2"></i> Methods
-                        </a>
-                    </li>
+{{-- Large top navbar: never rendered on student pages (student shell flag, hard-guarded by role).
+     Students keep it only on the public pages (home, kana); guests/admins see it exactly as before. --}}
+@unless($studentShell ?? false || (Auth::check() && Auth::user()->role === 'student' && !request()->routeIs('home', 'kana')))
+    @include('partials.app-navbar')
+@endunless
 
-                    <!-- Kana Chart Link -->
-                    <li class="nav-item">
-                        <a href="{{ route('kana') }}" class="nav-link px-4 py-2 rounded-pill small fw-medium text-light {{ request()->routeIs('kana') ? 'active bg-white bg-opacity-10 text-white shadow-sm' : 'opacity-75' }}">
-                            <i class="bi bi-grid-3x3-gap me-2"></i> Kana Chart
-                        </a>
-                    </li>
-                </ul>
 
-                <!-- Right Side: Navbar (Login / Register / User Profile) -->
-                <div class="d-flex align-items-center justify-content-center gap-2 mt-3 mt-lg-0">
-                    @guest
-                        <!-- Login & Register Buttons for Guests -->
-                        <a href="{{ route('login') }}" class="liquid-btn-glass btn-login-glass">
-                            <span class="btn-text">Login</span>
-                            <div class="liquid-fill"></div>
-                        </a>
-
-                        <a href="{{ route('register') }}" class="liquid-btn-glass btn-register-glass">
-                            <span class="btn-text">Register</span>
-                            <div class="liquid-fill"></div>
-                        </a>
-                    @endguest
-
-                    @auth
-                        <!-- Profile Dropdown for Logged-in Users -->
-                        <div class="dropdown">
-                            <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                                <div class="rounded-circle overflow-hidden border border-secondary" style="width: 50px; height: 50px;">
-                                    @if(Auth::user()->profile_photo)
-                                        <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" alt="Profile" class="w-100 h-100 object-fit-cover">
-                                    @else
-                                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ Auth::user()->name }}" alt="Default Avatar" class="w-100 h-100 object-fit-cover">
-                                    @endif
-                                </div>
-                            </a>
-                            
-                            <!-- dropdown-menu-glass class -->
-                            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-glass text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1">
-                                <!-- Super Admin Dashboard Link -->
-                                @if(Auth::user()->role === 'super_admin')
-                                    <li>
-                                        <a class="dropdown-item py-2" href="{{ route('super.admin.admins.index') }}" style="color: #c084fc;">
-                                            <i class="bi bi-speedometer2 me-2"></i>Dashboard
-                                        </a>
-                                    </li>
-                                    <li><hr class="dropdown-divider border-secondary border-opacity-25"></li>
-                                @endif
-
-                                <li><a class="dropdown-item py-2" href="{{ route('profile.edit') }}"><i class="bi bi-person me-2"></i> My Profile</a></li>
-                                <li><a class="dropdown-item py-2" href="{{ route('profile.access') }}"><i class="bi bi-shield-lock me-2"></i> Manage Access</a></li>
-                                <li><hr class="dropdown-divider border-secondary border-opacity-25"></li>
-                                <li>
-                                    <form action="{{ route('logout') }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="dropdown-item text-danger py-2"><i class="bi bi-box-arrow-right me-2"></i> Logout</button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </div>
-                    @endauth
-                </div>
-            </div>
-        </div>
-    </nav>
-</header>
+@if($studentShell ?? false)
+    <div class="sk-dash">
+        @include('partials.student-bg')
+        @include('partials.student-sidebar')
+        <div class="sk-side-overlay" aria-hidden="true"></div>
+        <div class="sk-main">
+            @include('partials.student-utility')
+            <div class="sk-wrap">
+@endif
 
     <!-- Main Dynamic Content -->
     <main>
         @yield('content')
     </main>
 
+@if($studentShell ?? false)
+            </div><!-- /.sk-wrap -->
+        </div><!-- /.sk-main -->
+    </div><!-- /.sk-dash -->
+@endif
+
     <!-- Footer Component -->
-    <footer class="py-4 border-top border-opacity-10" style="border-color: rgba(255, 255, 255, 0.08) !important;">
-        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
-            <div class="fw-extrabold fs-4 gradient-text">SukuraLearn.</div>
-            <nav class="d-flex flex-wrap justify-content-center gap-4 small opacity-75">
-                <a href="#courses" class="text-decoration-none text-light">Courses</a>
-                <a href="#methods" class="text-decoration-none text-light">Methods</a>
-                <a href="#community" class="text-decoration-none text-light">Community</a>
-                <a href="#" class="text-decoration-none text-light">Privacy</a>
-                <a href="#" class="text-decoration-none text-light">Terms</a>
-            </nav>
-            <small class="text-muted">&copy; <span id="currentYear"></span> SukuraLearn. Made with <i class="bi bi-heart-fill text-danger"></i> in Tokyo.</small>
+    <footer class="pt-5 pb-4 border-top border-opacity-10{{ ($studentShell ?? false) ? ' sk-dash-footer' : '' }}" style="border-color: rgba(255, 255, 255, 0.08) !important;">
+        <div class="container">
+            <div class="row g-4 pb-4">
+                <div class="col-12 col-md-5">
+                    <a href="{{ route('home') }}" class="fw-bold fs-4 gradient-text text-decoration-none">SukuraLearn.</a>
+                    <p class="text-muted small mt-2 mb-0">Learn Japanese step by step, from your first words to advanced fluency.</p>
+                    <p class="text-muted small mt-2 mb-0">一歩ずつ、日本語を学びましょう。</p>
+                </div>
+                <div class="col-6 col-md-3">
+                    <h6 class="text-white fw-bold mb-3">Learning</h6>
+                    @auth
+                        <a href="{{ route('select.level') }}" class="d-block text-muted text-decoration-none small mb-2">Levels and Training</a>
+                    @else
+                        <a href="{{ route('login') }}" class="d-block text-muted text-decoration-none small mb-2">Sign in to learn</a>
+                    @endauth
+                </div>
+                <div class="col-6 col-md-4">
+                    <h6 class="text-white fw-bold mb-3">Account</h6>
+                    @auth
+                        <a href="{{ route('profile.edit') }}" class="d-block text-muted text-decoration-none small mb-2">My Profile</a>
+                        @if(Auth::user()->role === 'admin')
+                            <a href="{{ route('admin.dashboard') }}" class="d-block text-muted text-decoration-none small mb-2">Dashboard</a>
+                        @elseif(Auth::user()->role === 'super_admin')
+                            <a href="{{ route('super.admin.dashboard') }}" class="d-block text-muted text-decoration-none small mb-2">Dashboard</a>
+                        @endif
+                    @else
+                        <a href="{{ route('login') }}" class="d-block text-muted text-decoration-none small mb-2">Login</a>
+                        <a href="{{ route('register') }}" class="d-block text-muted text-decoration-none small mb-2">Register</a>
+                    @endauth
+                </div>
+            </div>
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 border-top border-secondary border-opacity-25 pt-3">
+                <small class="text-muted">&copy; {{ date('Y') }} SukuraLearn. All rights reserved.</small>
+                <small class="text-muted">Made for Japanese learners.</small>
+            </div>
         </div>
     </footer>
     
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
-
         // Navbar Active Link Switching
         const navLinks = document.querySelectorAll('.navbar .nav-link');
         navLinks.forEach(link => {
             link.addEventListener('click', function() {
                 navLinks.forEach(nav => nav.classList.remove('active'));
                 this.classList.add('active');
-            });
+            }); 
         });
     </script>
+    @if(Auth::check() && Auth::user()->role === 'student')
+        <script>
+            (function () {
+                const currencies = document.getElementById('student-currencies');
+                if (!currencies) return;
+
+                const maxHearts = Number(currencies.dataset.maxHearts || 5);
+                const countdown = document.getElementById('heart-next-countdown');
+                const countdownSection = document.getElementById('heart-countdown-section');
+                const fullState = document.getElementById('heart-full-state');
+                const fullCount = document.getElementById('heart-full-count');
+                const progressTrack = document.getElementById('heart-progress-track');
+                const progressFill = document.getElementById('heart-progress-fill');
+                const heartSlots = document.getElementById('heart-slots');
+                const popoverCount = document.getElementById('heart-popover-count');
+                const heartCount = document.getElementById('navbar-heart-count');
+                const gemButton = document.getElementById('gem-heart-refill-button');
+                const gemTotal = document.getElementById('navbar-gem-total');
+                const gemPopoverBalance = document.getElementById('navbar-gem-count');
+                const regenerationInterval = Math.max(1, Number(currencies.dataset.heartInterval || 300));
+                let secondsToNext = Math.max(0, Number(currencies.dataset.heartSeconds || 0));
+                let hearts = Number((heartCount.textContent || '0').split('/')[0]);
+                let gems = Number(gemTotal.textContent || 0);
+                let refillCost = Number(@json($heartState['gem_refill_cost']));
+                let refreshing = false;
+
+                function formatTime(seconds) {
+                    const minutes = Math.floor(seconds / 60).toString().padStart(2, '0');
+                    const remainder = (seconds % 60).toString().padStart(2, '0');
+                    return minutes + ':' + remainder;
+                }
+
+                function renderCountdown() {
+                    const isFull = hearts >= maxHearts;
+                    const progress = isFull ? 100 : Math.max(0, Math.min(100, 100 * (regenerationInterval - secondsToNext) / regenerationInterval));
+                    heartCount.textContent = hearts + '/' + maxHearts;
+                    popoverCount.textContent = String(hearts);
+                    heartSlots.setAttribute('aria-label', hearts + ' of ' + maxHearts + ' hearts');
+                    heartSlots.querySelectorAll('.heart-slot').forEach(function (slot, index) {
+                        const filled = index < hearts;
+                        slot.classList.toggle('is-filled', filled);
+                        slot.classList.toggle('is-empty', !filled);
+                        slot.textContent = filled ? '❤️' : '♡';
+                    });
+                    fullState.hidden = !isFull;
+                    fullCount.textContent = maxHearts + '/' + maxHearts;
+                    countdownSection.hidden = isFull;
+                    if (!isFull) {
+                        countdown.textContent = formatTime(secondsToNext);
+                        progressFill.style.width = progress + '%';
+                        progressTrack.setAttribute('aria-valuenow', String(Math.round(progress)));
+                    }
+                    if (gemButton) {
+                        gemButton.disabled = isFull;
+                        gemButton.textContent = '💎 ' + refillCost.toLocaleString() + ' · Refill Hearts';
+                    }
+                }
+
+                async function refreshFromServer() {
+                    if (refreshing) return;
+                    refreshing = true;
+                    try {
+                        const response = await fetch(currencies.dataset.heartStatusUrl, {
+                            headers: { 'Accept': 'application/json' },
+                            credentials: 'same-origin'
+                        });
+                        if (!response.ok) throw new Error('Heart state refresh failed.');
+                        const state = await response.json();
+                        hearts = Number(state.hearts);
+                        secondsToNext = Math.max(0, Number(state.seconds_to_next_heart));
+                        gems = Number(state.gems);
+                        refillCost = Number(state.gem_refill_cost);
+                        if (gemTotal) gemTotal.textContent = String(gems);
+                        if (gemPopoverBalance) gemPopoverBalance.textContent = String(gems);
+                        renderCountdown();
+                    } catch (error) {
+                        secondsToNext = 5;
+                    } finally {
+                        refreshing = false;
+                    }
+                }
+
+                renderCountdown();
+                window.setInterval(function () {
+                    if (hearts >= maxHearts) return;
+                    if (secondsToNext <= 0) {
+                        refreshFromServer();
+                        return;
+                    }
+                    secondsToNext -= 1;
+                    renderCountdown();
+                }, 1000);
+            })();
+        </script>
+    @endif
     @stack('scripts')
 </body>
 </html>
+

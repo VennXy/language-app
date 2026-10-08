@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('role')->default('student');
             $table->string('target_language', 50)->default('ja');
             $table->integer('streak_count')->default(0);
-            $table->timestamp('last_active_at')->nullablec();
+            $table->timestamp('last_active_at')->nullable();
             $table->timestamps();
         });
 

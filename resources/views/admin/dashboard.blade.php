@@ -2,21 +2,80 @@
 
 @section('admin_content')
 <style>
-    .test {
-        color: pink;
+    /* Modern Glass Button Base */
+    .btn-modern-glass {
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: #ffffff;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
+    .btn-modern-glass:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(192, 132, 252, 0.5);
+        color: #ffffff;
+        box-shadow: 0 0 15px rgba(192, 132, 252, 0.4);
+        transform: translateY(-2px);
+    }
+
+    /* Modern Primary / Purple Glow Button */
+    .btn-modern-purple {
+        background: linear-gradient(135deg, #c084fc 0%, #9333ea 100%);
+        border: 1px solid rgba(192, 132, 252, 0.4);
+        color: #ffffff;
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
+        transition: all 0.3s ease;
+    }
+    .btn-modern-purple:hover {
+        background: linear-gradient(135deg, #d8b4fe 0%, #a855f7 100%);
+        box-shadow: 0 0 20px rgba(192, 132, 252, 0.6);
+        color: #ffffff;
+        transform: translateY(-2px);
+    }
+
+    /* Modern Danger / Delete Button */
+    .btn-modern-danger {
+        background: rgba(239, 68, 68, 0.15);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #fca5a5;
+        transition: all 0.3s ease;
+    }
+    .btn-modern-danger:hover {
+        background: rgba(239, 68, 68, 0.3);
+        border-color: rgba(239, 68, 68, 0.6);
+        color: #ffffff;
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+        transform: translateY(-2px);
+    }
+    
 </style>
+
 <div class="container py-5">
+    @if($dashboardForAdmin ?? false)
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-white fw-bold">Admin Dashboard</h2>
+            <p class="text-light opacity-75">Manage your exam question contributions and review status.</p>
+        </div>
+        <a href="{{ route('admin.exams.index') }}" class="btn btn-modern-purple px-4 py-2 rounded-pill fw-semibold shadow-sm">Exam Questions</a>
+    </div>
+    <div class="row g-4 mb-5">
+        <div class="col-md-4"><div class="p-4 rounded-4 shadow-sm border border-purple-subtle" style="background: rgba(255, 255, 255, 0.03); border-color: rgba(192, 132, 252, 0.2) !important;"><span class="text-light small text-uppercase fw-semibold opacity-75">Your Questions</span><h3 class="text-white fw-bold mt-1 mb-0">{{ $myQuestionsCount }}</h3></div></div>
+        <div class="col-md-4"><div class="p-4 rounded-4 shadow-sm border border-purple-subtle" style="background: rgba(255, 255, 255, 0.03); border-color: rgba(192, 132, 252, 0.2) !important;"><span class="text-light small text-uppercase fw-semibold opacity-75">Draft Questions</span><h3 class="text-white fw-bold mt-1 mb-0">{{ $myDraftQuestionsCount }}</h3></div></div>
+        <div class="col-md-4"><div class="p-4 rounded-4 shadow-sm border border-purple-subtle" style="background: rgba(255, 255, 255, 0.03); border-color: rgba(192, 132, 252, 0.2) !important;"><span class="text-light small text-uppercase fw-semibold opacity-75">Awaiting Review</span><h3 class="text-white fw-bold mt-1 mb-0">{{ $myPendingQuestionsCount }}</h3></div></div>
+    </div>
+    @else
     <!-- Header Section -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="text-white fw-bold">Super Admin Dashboard</h2>
-            <p class="text">Manage system administrators and monitor application users.</p>
+            <p class="text-light opacity-75">Manage system administrators and monitor application users.</p>
         </div>
         <!-- Button to trigger Add Admin Modal -->
-        <button type="button" class="btn px-4 py-2 rounded-pill fw-semibold text-dark shadow-sm" style="background: #c084fc; border: none;" data-bs-toggle="modal" data-bs-target="#addAdminModal">
+        <!-- <button type="button" class="btn btn-modern-purple px-4 py-2 rounded-pill fw-semibold shadow-sm" data-bs-toggle="modal" data-bs-target="#addAdminModal">
             <i class="bi bi-person-plus-fill me-2"></i> Add New Admin
-        </button>
+        </button> -->
     </div>
 
     <!-- Success Message Alert -->
@@ -42,11 +101,11 @@
     <!-- Statistics Cards Row -->
     <div class="row g-4 mb-5">
         <div class="col-md-6">
-            <div class="p-4 rounded-4 shadow-sm border border-purple-subtle" style="background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(5px);">
+            <div class="p-4 rounded-4 shadow-sm border border-purple-subtle" style="background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(5px); border-color: rgba(192, 132, 252, 0.2) !important;">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <span class="fw-bold text small text-uppercase fw-semibold">Total Admins</span>
-                        <h3 class="text-white fw-bold mt-1 mb-0">{{ count($admins) }}</h3>
+                        <span class="text-light small text-uppercase fw-semibold opacity-75">Total Admins</span>
+                        <h3 class="text-white fw-bold mt-1 mb-0">{{ isset($admins)? count($admins):0 }}</h3>
                     </div>
                     <div class="p-3 rounded-circle text-purple" style="background: rgba(192, 132, 252, 0.1); color: #c084fc;">
                         <i class="bi bi-shield-lock-fill fs-4"></i>
@@ -55,10 +114,10 @@
             </div>
         </div>
         <div class="col-md-6">
-            <div class="p-4 rounded-4 shadow-sm border border-purple-subtle" style="background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(5px);">
+            <div class="p-4 rounded-4 shadow-sm border border-purple-subtle" style="background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(5px); border-color: rgba(192, 132, 252, 0.2) !important;">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <span class="fw-bold text small text-uppercase fw-semibold">Total Users in System</span>
+                        <span class="text-light small text-uppercase fw-semibold opacity-75">Total Users in System</span>
                         <h3 class="text-white fw-bold mt-1 mb-0">{{ $totalUsers }}</h3>
                     </div>
                     <div class="p-3 rounded-circle text-info" style="background: rgba(56, 189, 248, 0.1); color: #38bdf8;">
@@ -68,72 +127,82 @@
             </div>
         </div>
     </div>
-         <!-- Glassmorphism Admin List Table Section -->
-<div class="card shadow-lg rounded-4 overflow-hidden mb-4" style="background: rgba(20, 10, 40, 0.35) !important; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.15) !important;">
-    <div class="card-header py-3 px-4" style="background: rgba(255, 255, 255, 0.03) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;">
-        <h5 class="text-white mb-0 fw-semibold">Administrators List</h5>
-    </div>
-    <div class="card-body p-0" style="background: transparent !important;">
-        <div class="table-responsive w-100">
-            <table class="table mb-0 align-middle text-nowrap" style="background: transparent !important; color: #ffffff;">
-                <thead style="background: rgba(255, 255, 255, 0.05) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-                    <tr>
-                        <th class="py-3 px-4 text-uppercase fs-7 fw-bold" style="background: transparent !important; color: #d8b4fe;">Admin Name</th>
-                        <th class="py-3 px-4 text-uppercase fs-7 fw-bold" style="background: transparent !important; color: #d8b4fe;">Email Address</th>
-                        <th class="py-3 px-4 text-uppercase fs-7 fw-bold" style="background: transparent !important; color: #d8b4fe;">Date of Birth</th>
-                        <th class="py-3 px-4 text-uppercase fs-7 fw-bold" style="background: transparent !important; color: #d8b4fe;">Role</th>
-                        <th class="py-3 px-4 text-uppercase fs-7 fw-bold text-end" style="background: transparent !important; color: #d8b4fe;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody style="background: transparent !important;">
-                    @forelse($admins as $admin)
-                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); background: transparent !important;">
-                            <td class="py-3 px-4 text-white fw-medium" style="background: transparent !important;">
-                                {{ $admin->name }}
-                                @if($admin->id === auth()->id())
-                                    <span class="badge bg-warning text-dark ms-2" style="font-size: 10px;">You</span>
-                                @endif
-                            </td>
-                            <td class="py-3 px-4 text-light" style="background: transparent !important; opacity: 0.9;">{{ $admin->email }}</td>
-                            <td class="py-3 px-4 text-light" style="background: transparent !important; opacity: 0.8;">{{ $admin->date_of_birth ?? 'N/A' }}</td>
-                            <td class="py-3 px-4" style="background: transparent !important;">
-                                @if($admin->role === 'super_admin')
-                                    <span class="badge px-2 py-1 text-dark fw-bold" style="background: #c084fc;">Super Admin</span>
-                                @else
-                                    <span class="badge px-2 py-1" style="background: rgba(192, 132, 252, 0.2); color: #c084fc;">Admin</span>
-                                @endif
-                            </td>
-                            <td class="py-3 px-4 text-end" style="background: transparent !important;">
-                                @if($admin->id === auth()->id())
-                                    <a href="#" class="btn btn-sm btn-outline-light px-3 rounded-pill me-1" style="border-color: rgba(255,255,255,0.3);">
-                                        <i class="bi bi-eye-fill me-1"></i> View
-                                    </a>
-                                    <a href="#" class="btn btn-sm px-3 rounded-pill text-dark fw-semibold shadow-sm" style="background: #c084fc;">
-                                        <i class="bi bi-pencil-fill me-1"></i> Edit
-                                    </a>
-                                @else
-                                    <form action="{{ route('super.admin.admins.destroy', $admin->id) }}" method="POST" onsubmit="return confirm('ဒီ Admin ကို ဖယ်ရှားမှာ သေချာပါသလား?');" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger px-3 rounded-pill">
-                                            <i class="bi bi-trash-fill me-1"></i> Delete
-                                        </button>
-                                    </form>
-                                @endif
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="text-center py-4 text-muted" style="background: transparent !important;">No administrators found.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+
+    
+</div>
+
+<!-- ========================================== -->
+<!-- VIEW MODALS -->
+<!-- ========================================== -->
+@foreach($admins as $admin)
+<div class="modal fade" id="viewAdminModal{{ $admin->id }}" tabindex="-1" aria-labelledby="viewAdminModalLabel{{ $admin->id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content text-white border-0 shadow-lg rounded-4" style="background: rgba(25, 15, 45, 0.90); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(192, 132, 252, 0.3) !important;">
+            
+            <!-- Modal Header -->
+            <div class="modal-header border-bottom border-light border-opacity-10 px-4 py-3">
+                <h5 class="modal-title fw-bold" id="viewAdminModalLabel{{ $admin->id }}" style="color: #d8b4fe;">
+                    <i class="bi bi-person-badge-fill me-2"></i> Administrator Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body p-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
+                            <span class="d-block text-uppercase mb-1" style="font-size: 11px; letter-spacing: 0.5px; color: #d8b4fe; font-weight: 600;">Full Name</span>
+                            <span class="fs-6 fw-semibold text-white">{{ $admin->name }}</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
+                            <span class="d-block text-uppercase mb-1" style="font-size: 11px; letter-spacing: 0.5px; color: #d8b4fe; font-weight: 600;">Email Address</span>
+                            <span class="fs-6 fw-semibold text-white">{{ $admin->email }}</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
+                            <span class="d-block text-uppercase mb-1" style="font-size: 11px; letter-spacing: 0.5px; color: #d8b4fe; font-weight: 600;">Date of Birth</span>
+                            <span class="fs-6 fw-semibold text-white">{{ $admin->date_of_birth ?? 'N/A' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
+                            <span class="d-block text-uppercase mb-1" style="font-size: 11px; letter-spacing: 0.5px; color: #d8b4fe; font-weight: 600;">System Role</span>
+                            <span class="fs-6 fw-semibold" style="color: #f3e8ff;">{{ ucfirst(str_replace('_', ' ', $admin->role)) }}</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
+                            <span class="d-block text-uppercase mb-1" style="font-size: 11px; letter-spacing: 0.5px; color: #d8b4fe; font-weight: 600;">Account Created</span>
+                            <span class="fs-6 fw-semibold text-white">{{ $admin->created_at ? $admin->created_at->format('Y-m-d H:i:s') : 'N/A' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
+                            <span class="d-block text-uppercase mb-1" style="font-size: 11px; letter-spacing: 0.5px; color: #d8b4fe; font-weight: 600;">Last Updated</span>
+                            <span class="fs-6 fw-semibold text-white">{{ $admin->updated_at ? $admin->updated_at->format('Y-m-d H:i:s') : 'N/A' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer border-top border-light border-opacity-10 px-4 py-3">
+                <button type="button" class="btn btn-outline-light rounded-pill px-4 shadow-sm" data-bs-dismiss="modal">Close</button>
+            </div>
+
         </div>
     </div>
 </div>
-    
-</div>
+@endforeach
 
 <!-- Add New Admin Modal -->
 <div class="modal fade" id="addAdminModal" tabindex="-1" aria-labelledby="addAdminModalLabel" aria-hidden="true">
@@ -171,4 +240,5 @@
         </div>
     </div>
 </div>
+    @endif
 @endsection

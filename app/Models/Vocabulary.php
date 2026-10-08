@@ -12,15 +12,15 @@ class Vocabulary extends Model
 
     protected $table = 'vocabularies';
 
-    protected $fillable = [
-        'lesson_id',
-        'word',
-        'hiragana',
-        'romaji',
-        'meaning',
-        'audio',            
-        'example_sentence',
-    ];
+   protected $fillable = [
+    'lesson_id',
+    'question_type',
+    'question',
+    'correct_answer',
+    'options',
+    'audio',
+    'image_url'
+];
 
     /**
      *      

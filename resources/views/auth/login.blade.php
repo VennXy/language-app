@@ -8,7 +8,7 @@
                 
                 <!-- Logo & Subtitle -->
                 <div class="text-center mb-4">
-                    <h2 class="fw-bold text-white" style="letter-spacing: -1px;">kotoba<span style="color: #c084fc;">.</span></h2>
+                    <h2 class="fw-bold text-white" style="letter-spacing: -1px;">SakuraLearn<span style="color: #c084fc;">.</span></h2>
                     <p class="text-white-50 small">Welcome back! Please login to continue learning.</p>
                 </div>
 
