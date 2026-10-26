@@ -29,12 +29,12 @@
     @if($errors->any())<div class="alert alert-danger">{{ $errors->first() }}</div>@endif
     <div class="card border border-light border-opacity-10 p-4 p-md-5 text-white" style="background:rgba(255,255,255,.04);backdrop-filter:blur(14px);border-radius:18px">
         <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3">
-            <div><h1 class="h2 gradient-text fw-bold mb-1">{{ $attempt->exam->title }}</h1><div class="text-white-50">Question {{ $currentQuestion->question_order }} of 25</div></div>
+            <div><h1 class="h2 gradient-text fw-bold mb-1">{{ $attempt->exam->display_title }}</h1><div class="text-white-50">Question {{ $currentQuestion->question_order }} of {{ $questions->count() }}</div></div>
             <div class="text-end"><div class="small text-white-50">Time remaining</div><div class="fs-4 fw-bold" id="exam-timer" role="timer" aria-live="off">--:--</div></div>
         </div>
 
-        <div class="progress mb-2" style="height:8px;background:rgba(255,255,255,.12)"><div class="progress-bar" style="width:{{ ($answeredCount / 25) * 100 }}%"></div></div>
-        <div class="d-flex justify-content-between small text-white-50 mb-4"><span>Answered: <span id="answered-count">{{ $answeredCount }}</span>/25</span><span>Pass mark: 60%</span></div>
+        <div class="progress mb-2" style="height:8px;background:rgba(255,255,255,.12)"><div class="progress-bar" style="width:{{ ($answeredCount / max(1, $questions->count())) * 100 }}%"></div></div>
+        <div class="d-flex justify-content-between small text-white-50 mb-4"><span>Answered: <span id="answered-count">{{ $answeredCount }}</span>/{{ $questions->count() }}</span><span>Pass mark: 60%</span></div>
 
         <section class="sk-q-area rounded-3 p-4 mb-4" style="background:rgba(255,255,255,.05)">
             <h2 class="h4 mb-4">{{ $currentQuestion->question }}</h2>
@@ -57,7 +57,7 @@
             @if($currentQuestion->question_order > 1)
                 <a class="btn btn-outline-light" href="{{ route('student.exams.attempts.show', ['attempt' => $attempt, 'question' => $currentQuestion->question_order - 1]) }}">Previous</a>
             @else <span></span> @endif
-            @if($currentQuestion->question_order < 25)
+            @if($currentQuestion->question_order < $questions->count())
                 <a class="btn btn-outline-light" href="{{ route('student.exams.attempts.show', ['attempt' => $attempt, 'question' => $currentQuestion->question_order + 1]) }}">Next</a>
             @endif
         </div>

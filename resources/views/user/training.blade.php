@@ -48,7 +48,11 @@
 <div class="container py-5 text-white" style="max-width: 700px;" id="training-session"
      data-hearts="{{ $lessonState['hearts'] }}"
      data-session-ended="{{ $lessonState['session_ended'] ? '1' : '0' }}"
-     data-lesson-completed="{{ $lessonState['lesson_completed'] ? '1' : '0' }}">
+     data-lesson-completed="{{ $lessonState['lesson_completed'] ? '1' : '0' }}"
+     data-phase="{{ $questionFlow['phase'] }}"
+     data-retry-remaining="{{ $questionFlow['retry_remaining'] }}"
+     data-answered-count="{{ $questionFlow['answered_count'] }}"
+     data-next-question-index="{{ $questionFlow['next_question_index'] ?? '' }}">
     <!-- Top Progress Bar, Hearts & Header (Duolingo Gaming Style) -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <button type="button" class="text-secondary text-decoration-none fs-4 bg-transparent border-0" data-bs-toggle="modal" data-bs-target="#leaveLessonModal" aria-label="Leave lesson">✕</button>
@@ -57,11 +61,19 @@
         <div class="progress flex-grow-1 mx-3 bg-secondary" style="height: 10px; border-radius: 5px;">
             @php
                 $progressTotal = $isTeaching ? $learningItems->count() : count($lesson->vocabularies);
-                $progressCurrent = $isTeaching ? (int) ($lessonState['learning_item_index'] ?? 0) : (int) $lessonState['next_index'];
+                if ($isTeaching) {
+                    $progressCurrent = (int) ($lessonState['learning_item_index'] ?? 0);
+                } elseif (($questionFlow['phase'] ?? 'initial') === 'retry') {
+                    // Retry round: advance on verified answers so the original question
+                    // count stays the denominator throughout.
+                    $progressCurrent = (int) $questionFlow['answered_count'];
+                } else {
+                    $progressCurrent = (int) $lessonState['next_index'];
+                }
             @endphp
             <div id="progress-bar" class="progress-bar training-progress-fill" style="width: {{ $progressTotal ? min(100, ($progressCurrent / $progressTotal) * 100) : 0 }}%; transition: width 0.4s ease;"></div>
         </div>
-        <span class="small text-light text-nowrap" id="question-counter">@if($isTeaching) Vocabulary {{ min($lessonState['learning_item_index'] + 1, $learningItems->count()) }} / {{ $learningItems->count() }}@else Question {{ min($lessonState['next_index'] + 1, count($lesson->vocabularies)) }} / {{ count($lesson->vocabularies) }}@endif</span>
+        <span class="small text-light text-nowrap" id="question-counter">@if($isTeaching) Vocabulary {{ min($lessonState['learning_item_index'] + 1, $learningItems->count()) }} / {{ $learningItems->count() }}@elseif(($questionFlow['phase'] ?? 'initial') === 'retry') Retry · {{ $questionFlow['retry_remaining'] }} left@else Question {{ min($lessonState['next_index'] + 1, count($lesson->vocabularies)) }} / {{ count($lesson->vocabularies) }}@endif</span>
         
         <!-- Hearts Counter -->
         <div class="sk-hearts-pill fw-bold fs-5">
@@ -95,7 +107,7 @@
         </div>
     @else
     @forelse($lesson->vocabularies as $index =>$vocabulary)
-        <div class="card bg-dark text-white border-secondary p-4 shadow-lg mb-4 question-card {{ $index !== $lessonState['next_index'] ? 'd-none' : '' }}" 
+        <div class="card bg-dark text-white border-secondary p-4 shadow-lg mb-4 question-card {{ $index !== $currentQuestionPosition ? 'd-none' : '' }}" 
              id="question-box-{{ $index }}" 
              data-index="{{ $index }}"
              data-vocabulary-id="{{ $vocabulary->id }}"
@@ -392,13 +404,99 @@
         if (!trainingSession) return;
 
         const totalQuestions = Number('{{ count($lesson->vocabularies) }}');
-        let currentQuestionIndex = Number('{{ $lessonState['next_index'] }}');
+        let currentQuestionIndex = Number('{{ $currentQuestionPosition ?? (int) $lessonState['next_index'] }}');
         let currentHearts = Number(trainingSession.dataset.hearts || 0);
         let requestPending = false;
         let trainingEnded = trainingSession.dataset.sessionEnded === '1';
         let lessonCompleted = trainingSession.dataset.lessonCompleted === '1';
         let allowNavigation = false;
         let hasStarted = @json(!$isTeaching && $lessonState['next_index'] > 0);
+        let retryRemaining = Number(trainingSession.dataset.retryRemaining || 0);
+        let answeredCount = Number(trainingSession.dataset.answeredCount || 0);
+        let inRetryPhase = trainingSession.dataset.phase === 'retry';
+
+        function applyFlowState(result) {
+            if (!result) return;
+            if (typeof result.retry_remaining === 'number') retryRemaining = result.retry_remaining;
+            if (typeof result.answered_count === 'number') answeredCount = result.answered_count;
+            if (typeof result.phase === 'string') inRetryPhase = result.phase === 'retry';
+        }
+
+        // Clear any previous attempt on a question box before it is (re)shown — retry
+        // questions arrive with stale feedback, selections, and disabled buttons otherwise.
+        function resetQuestionBox(index) {
+            const box = document.getElementById('question-box-' + index);
+            if (!box) return;
+
+            const feedback = document.getElementById('feedback-' + index);
+            if (feedback) {
+                feedback.className = 'alert d-none mb-3';
+                feedback.textContent = '';
+            }
+
+            const checkButton = document.getElementById('check-btn-' + index);
+            if (checkButton) {
+                checkButton.disabled = true;
+                checkButton.classList.remove('btn-success', 'btn-danger');
+                checkButton.classList.add('btn-secondary');
+            }
+
+            const skipButton = box.querySelector('.skip-btn');
+            if (skipButton) skipButton.disabled = false;
+
+            box.dataset.selected = '';
+            box.querySelectorAll('.option-card-item').forEach(function (card) {
+                card.classList.remove('border-primary', 'bg-secondary', 'bg-opacity-25', 'is-selected');
+            });
+
+            const answerZone = document.getElementById('answer-zone-' + index);
+            if (answerZone) {
+                answerZone.querySelectorAll('.selected-chip').forEach(function (chip) {
+                    chip.remove();
+                });
+                if (!answerZone.querySelector('.placeholder-text')) {
+                    answerZone.innerHTML = '<span class="text-muted placeholder-text">Select words below...</span>';
+                }
+            }
+
+            const optionsPool = document.getElementById('options-pool-' + index);
+            if (optionsPool) {
+                optionsPool.querySelectorAll('button').forEach(function (button) {
+                    button.style.display = '';
+                    button.hidden = false;
+                    button.disabled = false;
+                });
+            }
+
+            selectedTileIndexes.delete(index);
+            selectedTileAnswers.delete(index);
+        }
+
+        // Move from one question box to the next using the server-provided index so both
+        // the initial round and retry round land on exactly the right question.
+        function transitionToQuestion(fromIndex, result) {
+            applyFlowState(result);
+
+            const target = result && typeof result.next_question_index === 'number'
+                ? Number(result.next_question_index)
+                : null;
+            const targetBox = target === null ? null : document.getElementById('question-box-' + target);
+
+            if (!targetBox) {
+                if (!result || (!result.session_ended && !result.lesson_completed)) {
+                    showSessionEnded('questions_finished');
+                }
+                return;
+            }
+
+            const fromBox = document.getElementById('question-box-' + fromIndex);
+            if (fromBox) fromBox.classList.add('d-none');
+
+            resetQuestionBox(target);
+            targetBox.classList.remove('d-none');
+            currentQuestionIndex = target;
+            updateProgress();
+        }
 
         const selectedTileIndexes = new Map();
         const selectedTileAnswers = new Map();
@@ -681,10 +779,14 @@
                         feedback.textContent = 'Correct! Great job! 🎉';
                     }
 
-                    currentQuestionIndex = index + 1;
-                    updateProgress(currentQuestionIndex, total);
-
                     if (result.lesson_completed) {
+                        applyFlowState(result);
+                        answeredCount = totalQuestions;
+                        retryRemaining = 0;
+                        inRetryPhase = false;
+                        currentQuestionIndex = totalQuestions;
+                        updateProgress();
+
                         lessonCompleted = true;
                         trainingEnded = true;
                         const progression = result.progression || {};
@@ -721,13 +823,16 @@
                             new bootstrap.Modal(modalElement).show();
                         }
                     } else if (result.session_ended) {
+                        applyFlowState(result);
                         trainingEnded = true;
                         setTimeout(function () {
-                            showSessionEnded('questions_finished');
+                            showSessionEnded(result.end_reason || 'questions_finished');
                         }, 500);
                     } else {
+                        // Advance to the next question — or into the retry round — using
+                        // the server-provided index instead of staying on this question.
                         setTimeout(function () {
-                            nextQuestion(index, total);
+                            transitionToQuestion(index, result);
                         }, 600);
                     }
                 } else if (response.status === 422 && result.correct === false) {
@@ -739,11 +844,14 @@
                     if (result.session_ended) {
                         trainingEnded = true;
                         setTimeout(function () {
-                            showSessionEnded('hearts');
+                            showSessionEnded(result.end_reason || 'hearts');
                         }, 500);
                     } else {
-                        checkButton.disabled = false;
-                        if (skipButton) skipButton.disabled = false;
+                        // The miss is queued for retry; briefly show the correct answer,
+                        // then continue through the question set.
+                        setTimeout(function () {
+                            transitionToQuestion(index, result);
+                        }, 1200);
                     }
                 } else {
                     throw new Error(result.message || 'Could not verify this answer.');
@@ -798,14 +906,13 @@
                 }
 
                 setHearts(result.hearts);
-                currentQuestionIndex = index + 1;
-                updateProgress(currentQuestionIndex, total);
 
                 if (result.session_ended) {
                     trainingEnded = true;
                     showSessionEnded(result.end_reason || 'questions_finished');
                 } else {
-                    nextQuestion(index, total);
+                    // Skips are recorded for retry and the session moves straight on.
+                    transitionToQuestion(index, result);
                 }
             } catch (error) {
                 const feedback = document.getElementById('feedback-' + index);
@@ -822,38 +929,29 @@
             }
         }
 
-        function nextQuestion(index, total) {
-            const currentBox = document.getElementById('question-box-' + index);
-            if (currentBox) currentBox.classList.add('d-none');
-
-            const nextIndex = index + 1;
-            const nextBox = document.getElementById('question-box-' + nextIndex);
-
-            if (nextBox) {
-                nextBox.classList.remove('d-none');
-                updateQuestionCounter(nextIndex);
-            } else if (!lessonCompleted) {
-                trainingEnded = true;
-                showSessionEnded('questions_finished');
-            }
-        }
-
-        function updateProgress(current, total) {
+        function updateProgress() {
             const progressBar = document.getElementById('progress-bar');
             if (progressBar) {
-                const percentage = total > 0
-                    ? Math.min(100, (current / total) * 100)
+                // During the initial round the bar tracks the question position; during the
+                // retry round it tracks verified answers — both over the original count.
+                const current = inRetryPhase ? answeredCount : currentQuestionIndex;
+                const percentage = totalQuestions > 0
+                    ? Math.min(100, (current / totalQuestions) * 100)
                     : 0;
                 progressBar.style.width = percentage + '%';
             }
-            updateQuestionCounter(current);
+            updateQuestionCounter();
         }
 
-        function updateQuestionCounter(current) {
+        function updateQuestionCounter() {
             const label = document.getElementById('question-counter');
-            if (label) {
+            if (!label) return;
+
+            if (inRetryPhase) {
+                label.textContent = 'Retry · ' + retryRemaining + ' left';
+            } else {
                 label.textContent =
-                    'Question ' + Math.min(current + 1, totalQuestions) +
+                    'Question ' + Math.min(currentQuestionIndex + 1, totalQuestions) +
                     ' / ' + totalQuestions;
             }
         }
@@ -985,7 +1083,7 @@
             });
         });
 
-        updateProgress(currentQuestionIndex, totalQuestions);
+        updateProgress();
 
         if (trainingEnded) {
             showSessionEnded(@json($lessonState['end_reason'] ?? 'hearts'));

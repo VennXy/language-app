@@ -64,7 +64,7 @@ class AdminExamQuestionAuthoringTest extends TestCase
         $this->assertDatabaseMissing('exam_questions', ['admin_id' => $other->id]);
     }
 
-    public function test_admin_cannot_create_a_sixth_question_for_an_exam(): void
+    public function test_admin_can_create_more_than_five_questions(): void
     {
         $admin = $this->user('admin');
         $exam = $this->exam($this->user('super_admin'));
@@ -73,10 +73,29 @@ class AdminExamQuestionAuthoringTest extends TestCase
         }
 
         $this->actingAs($admin)
-            ->post(route('admin.exams.questions.store', $exam), $this->questionPayload())
-            ->assertSessionHasErrors('question');
+            ->post(route('admin.exams.questions.store', $exam), $this->questionPayload(['question' => 'Sixth question']))
+            ->assertRedirect(route('admin.exams.questions.index', $exam));
 
-        $this->assertSame(5, $exam->questions()->where('admin_id', $admin->id)->count());
+        $this->assertSame(6, $exam->questions()->where('admin_id', $admin->id)->count());
+    }
+
+    public function test_admin_question_rejects_invalid_content(): void
+    {
+        $admin = $this->user('admin');
+        $exam = $this->exam($this->user('super_admin'));
+
+        $this->actingAs($admin)
+            ->post(route('admin.exams.questions.store', $exam), [
+                'question' => '',
+                'option_a' => 'A',
+                'option_b' => 'B',
+                'option_c' => 'C',
+                'option_d' => 'D',
+                'correct_option' => 'Z',
+            ])
+            ->assertSessionHasErrors(['question', 'correct_option']);
+
+        $this->assertSame(0, $exam->questions()->count());
     }
 
     public function test_admin_can_edit_own_draft_question(): void

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - SakuraLearn</title>
+    <title>Admin Dashboard - NihongoBloom</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -86,15 +86,28 @@
             background: transparent;
             border-radius: 12px;
             padding: 12px 16px;
-            transition: all 0.3s ease;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
             font-weight: 500;
             white-space: nowrap;
         }
 
         .glass-sidebar .nav-link:hover {
-            background: rgba(244, 114, 182, 0.2);
+            background: rgba(192, 132, 252, 0.16);
             color: #ffffff;
-            transform: translateX(4px);
+        }
+
+        /* Active item stays visually distinct, even on hover */
+        .glass-sidebar .nav-link.active:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: inset 3px 0 0 #f472b6, 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        /* Keyboard users: visible focus ring that contrasts the sidebar */
+        .glass-sidebar .nav-link:focus-visible {
+            outline: 2px solid #e9d5ff;
+            outline-offset: 2px;
         }
 
         .glass-sidebar .nav-link.active {
@@ -235,6 +248,44 @@
         .dashboard-brand {
             color: #f3a6c8;
         }
+
+        /* Sidebar Icon micro-interaction: subtle brightness + small nudge; label stays put */
+        .glass-sidebar .nav-link i.nav-ic {
+            transition: transform 0.18s ease, filter 0.18s ease, color 0.18s ease;
+        }
+        .glass-sidebar .nav-link:hover i.nav-ic,
+        .glass-sidebar .nav-link:focus-visible i.nav-ic {
+            filter: brightness(1.2);
+            transform: translateX(3px);
+        }
+
+        /* Respect reduced-motion: keep color/background feedback, drop movement */
+        @media (prefers-reduced-motion: reduce) {
+            .glass-sidebar .nav-link {
+                transition: background-color 0.01ms ease, color 0.01ms ease;
+            }
+            .glass-sidebar .nav-link:hover,
+            .glass-sidebar .nav-link:focus-visible {
+                transform: none;
+            }
+            .glass-sidebar .nav-link:hover i.nav-ic,
+            .glass-sidebar .nav-link:focus-visible i.nav-ic {
+                transform: none;
+                filter: none;
+            }
+        }
+
+        /* Sidebar Icon Accents (SakuraLearn purple/pink theme + distinguishable accents) */
+        .glass-sidebar .nav-ic-dashboard  { color: #f472b6; } /* pink    – Dashboard */
+        .glass-sidebar .nav-ic-admins     { color: #60a5fa; } /* blue    – Admin Management */
+        .glass-sidebar .nav-ic-lessons    { color: #fbbf24; } /* amber   – Lecture Management */
+        .glass-sidebar .nav-ic-vocab      { color: #a78bfa; } /* violet  – Vocabulary Management */
+        .glass-sidebar .nav-ic-categories { color: #2dd4bf; } /* teal    – Category Management */
+        .glass-sidebar .nav-ic-review     { color: #38bdf8; } /* cyan    – Exam Question Review */
+        .glass-sidebar .nav-ic-exams      { color: #fb923c; } /* orange  – Exam Management */
+        .glass-sidebar .nav-ic-settings   { color: #c084fc; } /* purple  – Settings */
+        .glass-sidebar .nav-ic-logout     { color: #f87171; } /* rose    – Logout */
+        .glass-sidebar .nav-ic-home       { color: #4ade80; } /* green   – Back to Home Page */
     </style>
 </head>
 <body>
@@ -247,7 +298,7 @@
         <nav id="sidebar" class="glass-sidebar">
             <div class="sidebar-header">
                 <div class="brand-block">
-                    <span><h4 style="color: #f3a6c8;">SakuraLearn</h4></span>
+                    <span><h4 style="color: #f3a6c8;">Nihongobloom</h4></span>
                     <span>
                         {{ auth()->user()->role === 'super_admin' ? 'Super Admin Portal' : 'Admin Portal' }}
                     </span>
@@ -264,7 +315,7 @@
                     <li class="nav-item mb-2">
                         <a href="{{ auth()->user()->role === 'super_admin' ? route('super.admin.dashboard') : route('admin.dashboard') }}"
                            class="nav-link {{ request()->routeIs('super.admin.dashboard', 'admin.dashboard') ? 'active bg-purple' : 'text-white' }}">
-                            <i class="bi bi-speedometer2 me-2"></i> <span class="nav-text">Dashboard</span>
+                            <i class="bi bi-speedometer2 me-2 nav-ic nav-ic-dashboard"></i> <span class="nav-text">Dashboard</span>
                         </a>
                     </li>
 
@@ -273,26 +324,26 @@
                     <li class="nav-item mb-2">
                         <a href="{{ route('super.admin.admins.index') }}" 
                            class="nav-link {{ request()->routeIs('super.admin.admins.*') ? 'active bg-purple' : 'text-white' }}">
-                            <i class="bi bi-shield-lock-fill me-2"></i> <span class="nav-text">Admin Management</span>
+                            <i class="bi bi-shield-lock-fill me-2 nav-ic nav-ic-admins"></i> <span class="nav-text">Admin Management</span>
                         </a>
                      </li>
               <!-- Lesson Management Link --> 
 <li class="nav-item mb-2">
     <a href="{{ route('super.admin.lessons.index') }}" 
        class="nav-link {{ request()->routeIs('super.admin.lessons.*') ? 'active bg-purple' : 'text-white' }}">
-        <i class="bi bi-book-fill me-2"></i> <span class="nav-text">Lecture Management</span>
+        <i class="bi bi-book-fill me-2 nav-ic nav-ic-lessons"></i> <span class="nav-text">Lecture Management</span>
     </a>
 </li>
 <li class="nav-item mb-2">
     <a href="{{ route('super.admin.training.index') }}"
        class="nav-link {{ request()->routeIs('super.admin.training.*') ? 'active bg-purple' : 'text-white' }}">
-        <i class="bi bi-journal-richtext me-2"></i> <span class="nav-text">Training Management</span>
+        <i class="bi bi-journal-richtext me-2 nav-ic nav-ic-vocab"></i> <span class="nav-text">Vocabulary Management</span>
     </a>
 </li>
    <li class="nav-item mb-2">
     <a href="{{ route('super.admin.categories.index') }}" 
     class="nav-link {{ request()->routeIs('super.admin.categories.*') ? 'active bg-purple' : 'text-white' }}">
-        <i class="bi bi-folder me-2"></i> <span class="nav-text">Category Management</span>
+        <i class="bi bi-folder me-2 nav-ic nav-ic-categories"></i> <span class="nav-text">Category Management</span>
     </a>
 </li>
                     @endif
@@ -300,7 +351,7 @@
 <li class="nav-item mb-2">
     <a href="{{ route('admin.exams.index') }}"
        class="nav-link {{ request()->routeIs('admin.exams.*') ? 'active bg-purple' : 'text-white' }}">
-        <i class="bi bi-journal-text me-2"></i> <span class="nav-text">Exam Questions</span>
+        <i class="bi bi-journal-text me-2 nav-ic nav-ic-review"></i> <span class="nav-text">Exam Questions</span>
     </a>
 </li>
 @endif
@@ -308,13 +359,40 @@
 <li class="nav-item mb-2">
     <a href="{{ route('super.admin.exam.questions.exams') }}"
        class="nav-link {{ request()->routeIs('super.admin.exam.questions.*') ? 'active bg-purple' : 'text-white' }}">
-        <i class="bi bi-clipboard-check me-2"></i> <span class="nav-text">Exam Question Review</span>
+        <i class="bi bi-clipboard-check me-2 nav-ic nav-ic-review"></i> <span class="nav-text">Exam Question Review</span>
     </a>
 </li>
 <li class="nav-item mb-2">
     <a href="{{ route('super.admin.exams.index') }}"
        class="nav-link {{ request()->routeIs('super.admin.exams.*') ? 'active bg-purple' : 'text-white' }}">
-        <i class="bi bi-journal-check me-2"></i> <span class="nav-text">Exam Management</span>
+        <i class="bi bi-journal-check me-2 nav-ic nav-ic-exams"></i> <span class="nav-text">Exam Management</span>
+    </a>
+</li>
+
+<!-- Settings Link (Super Admin) — single entry point for settings-related options -->
+<li class="nav-item mb-2">
+    <a href="{{ route('super.admin.settings') }}"
+       class="nav-link {{ request()->routeIs('super.admin.settings*') ? 'active bg-purple' : 'text-white' }}">
+        <i class="bi bi-gear-fill me-2 nav-ic nav-ic-settings"></i> <span class="nav-text">Settings</span>
+    </a>
+</li>
+
+<!-- Logout (Super Admin) -->
+<li class="nav-item mb-2">
+    <a href="{{ route('logout') }}" class="nav-link text-white"
+       onclick="event.preventDefault(); document.getElementById('admin-sidebar-logout-form').submit();">
+        <i class="bi bi-box-arrow-right me-2 nav-ic nav-ic-logout"></i> <span class="nav-text">Logout</span>
+    </a>
+    <form id="admin-sidebar-logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+        @csrf
+    </form>
+</li>
+
+
+<!-- Back to Home Page (public website) -->
+<li class="nav-item mb-2">
+    <a href="{{ route('home') }}" class="nav-link text-white">
+        <i class="bi bi-house-door-fill me-2 nav-ic nav-ic-home"></i> <span class="nav-text">Back to Home Page</span>
     </a>
 </li>
 @endif
@@ -330,8 +408,8 @@
                     <button class="sidebar-toggle" id="sidebarToggle" type="button" title="Toggle Sidebar">
                         <i class="bi bi-list fs-5"></i>
                     </button>
-                    <span class="fw-bold dashboard-brand">
-                        SakuraLearn Management
+                    <span class="fw-bold dashboard-brand d-none d-sm-inline">
+                       NihongoBloom Management
                     </span>
                 </div>
             </div>

@@ -46,7 +46,7 @@ class ExamController extends Controller
 
         if ($validated['status'] === 'published') {
             throw ValidationException::withMessages([
-                'status' => 'An exam must have at least 25 approved questions before it can be published.',
+                'status' => 'An exam must have exactly 25 approved questions before it can be published.',
             ]);
         }
 
@@ -180,11 +180,23 @@ class ExamController extends Controller
 
     private function ensurePublishable(Exam $exam): void
     {
-        if ($exam->questions()->where('status', 'approved')->count() < 25) {
+        $approvedCount = $exam->questions()->where('status', 'approved')->count();
+        $minimum = $this->minimumApprovedQuestions();
+
+        if ($approvedCount < $minimum) {
             throw ValidationException::withMessages([
-                'status' => 'An exam must have at least 25 approved questions before it can be published.',
+                'status' => "An exam must have at least {$minimum} approved question(s) before it can be published.",
             ]);
         }
+    }
+
+    private function minimumApprovedQuestions(): int
+    {
+        if (config('gamification.exam_testing_mode', false)) {
+            return max(1, (int) config('gamification.exam_minimum_approved_questions', 1));
+        }
+
+        return (int) config('gamification.exam_production_approved_questions', 25);
     }
 
     private function authorizeSuperAdmin(): void

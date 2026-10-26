@@ -50,6 +50,124 @@
             font-size: 0.7rem;
         }
     }
+
+    /* ===== Lecture Management Filter Toolbar ===== */
+    .lesson-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.6rem;
+        margin-bottom: 1rem;
+        padding: 0.7rem 0.85rem;
+    }
+    .lesson-toolbar .toolbar-search {
+        position: relative;
+        flex: 1 1 260px;
+        min-width: 190px;
+    }
+    .lesson-toolbar .toolbar-search > i.bi-search {
+        position: absolute;
+        left: 0.85rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.95rem;
+        pointer-events: none;
+    }
+    .lesson-toolbar .toolbar-search input {
+        width: 100%;
+        padding: 0.55rem 2.3rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(192, 132, 252, 0.22);
+        color: #fff;
+        font-size: 0.9rem;
+        transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+    .lesson-toolbar .toolbar-search input::placeholder { color: rgba(255, 255, 255, 0.45); }
+    .lesson-toolbar .toolbar-search input:focus {
+        outline: none;
+        background: rgba(255, 255, 255, 0.08);
+        border-color: #a855f7;
+        box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.18);
+    }
+    .lesson-toolbar .clear-input {
+        position: absolute;
+        right: 0.45rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 22px; height: 22px;
+        display: inline-flex; align-items: center; justify-content: center;
+        border: none; border-radius: 50%;
+        background: rgba(255, 255, 255, 0.12);
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.68rem; line-height: 1;
+        cursor: pointer;
+        transition: background .15s ease, color .15s ease;
+    }
+    .lesson-toolbar .clear-input:hover { background: rgba(244, 114, 182, 0.4); color: #fff; }
+
+    .lesson-toolbar .toolbar-sort { display: flex; align-items: center; gap: 0.5rem; }
+    .lesson-toolbar .toolbar-sort label {
+        margin: 0; font-size: 0.78rem; font-weight: 600;
+        color: rgba(255, 255, 255, 0.55); white-space: nowrap;
+    }
+    .lesson-toolbar .toolbar-sort select {
+        appearance: none; -webkit-appearance: none;
+        padding: 0.5rem 2rem 0.5rem 0.9rem;
+        border-radius: 999px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(192, 132, 252, 0.22);
+        color: #fff; font-size: 0.85rem; font-weight: 600;
+        cursor: pointer;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23c084fc'%3e%3cpath d='M8 11L3 6h10z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.7rem center;
+        background-size: 11px;
+        transition: border-color .2s, box-shadow .2s, background-color .2s;
+    }
+    .lesson-toolbar .toolbar-sort select:focus {
+        outline: none; border-color: #a855f7;
+        box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.18);
+    }
+    .lesson-toolbar .toolbar-sort select.is-active {
+        border-color: #a855f7;
+        background-color: rgba(168, 85, 247, 0.16);
+        box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.14);
+    }
+    .lesson-toolbar .toolbar-sort select option { color: #1b1030; background: #fff; }
+
+    .lesson-toolbar .toolbar-actions { display: flex; align-items: center; gap: 0.5rem; margin-left: auto; }
+    .btn-tool-search {
+        padding: 0.5rem 1.15rem; border: none; border-radius: 999px;
+        background: #f472b6; color: #fff; font-weight: 600; font-size: 0.85rem;
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .btn-tool-search:hover { filter: brightness(1.06); box-shadow: 0 6px 16px rgba(244, 114, 182, 0.35); transform: translateY(-1px); }
+    .btn-tool-clear {
+        padding: 0.5rem 1rem; border-radius: 999px;
+        background: transparent; border: 1px solid rgba(255, 255, 255, 0.18);
+        color: rgba(255, 255, 255, 0.78); font-weight: 600; font-size: 0.85rem;
+        display: inline-flex; align-items: center; gap: 0.35rem;
+        transition: all .15s ease;
+    }
+    .btn-tool-clear:hover { color: #fff; border-color: rgba(244, 114, 182, 0.5); background: rgba(244, 114, 182, 0.12); }
+
+    /* Level column sort indicator */
+    .glass-table th .level-th { display: inline-flex; align-items: center; gap: 0.35rem; }
+    .glass-table th .level-th i { font-size: 0.8rem; color: rgba(255, 255, 255, 0.4); transition: color .2s; }
+    .glass-table th .level-th.is-active { color: #e9d5ff; font-weight: 700; }
+    .glass-table th .level-th.is-active i { color: #c084fc; }
+
+    @media (max-width: 576px) {
+        .lesson-toolbar { gap: 0.5rem; }
+        .lesson-toolbar .toolbar-search { flex: 1 1 100%; }
+        .lesson-toolbar .toolbar-sort { flex: 1 1 100%; }
+        .lesson-toolbar .toolbar-sort select { flex: 1 1 auto; }
+        .lesson-toolbar .toolbar-actions { margin-left: 0; width: 100%; }
+        .btn-tool-search, .btn-tool-clear { flex: 1; justify-content: center; }
+    }
 </style>
 
 <div class="container-fluid px-2 px-md-4">
@@ -57,7 +175,7 @@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
             <h2 class="fw-bold text-white mb-1">Lesson Management</h2>
-            <p class="text-white-50 mb-0">Manage training and exam lessons for SakuraLearn.</p>
+            <p class="text-white-50 mb-0">Manage training and exam lessons for NihongoBloom.</p>
         </div>
         <button type="button" class="btn btn-primary px-4 py-2 text-nowrap" data-bs-toggle="modal" data-bs-target="#addLessonModal" style="background: #f472b6; border: none; border-radius: 12px; font-weight: 600;">
             <i class="bi bi-plus-lg me-2"></i> Add New Lesson
@@ -72,6 +190,43 @@
         </div>
     @endif
 
+    <!-- Lecture Management Filter Toolbar (search + level sort) -->
+    <form method="GET" action="{{ route('super.admin.lessons.index') }}"
+          class="lesson-toolbar glass-card border-0 shadow-lg">
+        <div class="toolbar-search">
+            <i class="bi bi-search"></i>
+            <label for="lesson-search" class="visually-hidden">Search by lesson title</label>
+            <input type="text" id="lesson-search" name="q" value="{{ $search ?? '' }}"
+                   placeholder="Search by lesson title…" autocomplete="off">
+            @if(($search ?? '') !== '')
+                <button type="button" class="clear-input" title="Clear search"
+                        onclick="document.getElementById('lesson-search').value=''; this.closest('form').submit();">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            @endif
+        </div>
+
+        <div class="toolbar-sort">
+            <label for="lesson-level-sort">Sort by Level</label>
+            <select id="lesson-level-sort" name="sort" class="{{ $direction ? 'is-active' : '' }}" onchange="this.form.submit()">
+                <option value="" @selected(!$direction)>Default order</option>
+                <option value="asc" @selected($direction === 'asc')>Level: A1 → C2</option>
+                <option value="desc" @selected($direction === 'desc')>Level: C2 → A1</option>
+            </select>
+        </div>
+
+        <div class="toolbar-actions">
+            <button type="submit" class="btn-tool-search">
+                <i class="bi bi-search"></i> Search
+            </button>
+            @if(($search ?? '') !== '' || $direction)
+                <a href="{{ route('super.admin.lessons.index') }}" class="btn-tool-clear">
+                    <i class="bi bi-arrow-counterclockwise"></i> Clear
+                </a>
+            @endif
+        </div>
+    </form>
+
     <!-- Lessons Table Card -->
     <div class="card glass-card border-0 p-2 p-md-4 shadow-lg" style="backdrop-filter: blur(10px); border-radius: 16px;">
         <div class="table-responsive w-100">
@@ -80,7 +235,17 @@
                     <tr class="text-nowrap">
                         <th>#</th>
                         <th>Title</th>
-                        <th>Level</th>
+                        <th>
+                            @php
+                                $levelSortIcon = $direction === 'asc'
+                                    ? 'bi-sort-down'
+                                    : ($direction === 'desc' ? 'bi-sort-up' : 'bi-arrow-down-up');
+                            @endphp
+                            <span class="level-th {{ $direction ? 'is-active' : '' }}">
+                                Level
+                                <i class="bi {{ $levelSortIcon }}"></i>
+                            </span>
+                        </th>
                         <th>Type</th>
                         <th class="d-none d-md-table-cell">Score</th>
                         <th class="d-none d-md-table-cell">Order</th>
@@ -127,7 +292,13 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center py-4 text-white-50">No lessons found. Please add a new lesson.</td>
+                            <td colspan="7" class="text-center py-4 text-white-50">
+                                @if(($search ?? '') !== '')
+                                    No lessons match your search for "{{ $search }}".
+                                @else
+                                    No lessons found. Please add a new lesson.
+                                @endif
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>

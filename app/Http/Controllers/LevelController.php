@@ -35,6 +35,10 @@ class LevelController extends Controller
             : null;
         $type = $request->query('type', 'training');
 
+        // Once a level's required Training is complete, invite the learner to
+        // take that level's Exams (reusing the established completion rule).
+        $trainingComplete = $progression->isLevelTrainingComplete(auth()->user(), $level);
+
         return view('levels.courses', compact(
             'level',
             'lessons',
@@ -42,7 +46,8 @@ class LevelController extends Controller
             'completedLessonIds',
             'progressByLesson',
             'firePoints',
-            'type'
+            'type',
+            'trainingComplete'
         ));
     }
 }

@@ -14,7 +14,11 @@ use Illuminate\View\View;
 
 class ExamQuestionController extends Controller
 {
-    private const MAX_QUESTIONS_PER_EXAM = 5;
+    /**
+     * Admins may contribute as many questions as they need. Availability is
+     * gated only by Super Admin review and the approved-question publish rule,
+     * so there is no per-admin question cap here.
+     */
 
     public function index(Exam $exam): View
     {
@@ -35,11 +39,6 @@ class ExamQuestionController extends Controller
         $this->authorizeAdmin();
         $this->ensureDraftExam($exam);
 
-        if ($this->questionCount($exam) >= self::MAX_QUESTIONS_PER_EXAM) {
-            return redirect()->route('admin.exams.questions.index', $exam)
-                ->with('error', 'You can add a maximum of 5 questions to this exam.');
-        }
-
         return view('admin.exam-questions.form', compact('exam'));
     }
 
@@ -51,12 +50,6 @@ class ExamQuestionController extends Controller
         DB::transaction(function () use ($exam, $validated, $request): void {
             $lockedExam = Exam::query()->whereKey($exam->id)->lockForUpdate()->firstOrFail();
             $this->ensureDraftExam($lockedExam);
-
-            if ($this->questionCount($lockedExam) >= self::MAX_QUESTIONS_PER_EXAM) {
-                throw ValidationException::withMessages([
-                    'question' => 'You can add a maximum of 5 questions to this exam.',
-                ]);
-            }
 
             $lockedExam->questions()->create([
                 ...$validated,

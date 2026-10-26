@@ -141,6 +141,26 @@ class UserTrainingController extends Controller
             }
         }
 
+        $questionIds = $lesson->vocabularies
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+        $lessonState = $this->normalizeLessonState($lessonState, $questionIds);
+        $questionFlow = $this->questionFlowPayload($lessonState, $questionIds);
+
+        // The box to show on load: the current initial-round question, or the head of the
+        // retry queue once every question has been asked at least once.
+        $currentQuestionPosition = null;
+        if (($lessonState['lesson_completed'] ?? false) === false) {
+            $initialPosition = (int) $lessonState['next_index'];
+            if ($initialPosition < count($questionIds)) {
+                $currentQuestionPosition = $initialPosition;
+            } elseif (!empty($lessonState['retry_ids'])) {
+                $retryPosition = array_search((int) $lessonState['retry_ids'][0], $questionIds, true);
+                $currentQuestionPosition = $retryPosition === false ? null : (int) $retryPosition;
+            }
+        }
+
         $this->storeLessonState($sessionKey, $lessonState);
 
         $type = $request->query('type', 'training');
@@ -153,7 +173,9 @@ class UserTrainingController extends Controller
             'currentLearningItem',
             'usesLearningFlow',
             'isTeaching',
-            'bookmarkedVocabularyIds'
+            'bookmarkedVocabularyIds',
+            'questionFlow',
+            'currentQuestionPosition'
         ));
     }
 
@@ -255,6 +277,7 @@ class UserTrainingController extends Controller
 
         $sessionKey = $this->lessonProgressSessionKey(auth()->id(), $lesson->id);
         $lessonState = array_replace($this->newLessonState(), $this->loadLessonState($sessionKey) ?? []);
+        $lessonState = $this->normalizeLessonState($lessonState, $questionIds);
 
         if (auth()->user()->role === 'student') {
             $lessonState['hearts'] = $heartService->refresh(auth()->user());
@@ -283,35 +306,19 @@ class UserTrainingController extends Controller
             ], 409);
         }
 
-        if ($questionIndex < $lessonState['next_index']
-            && in_array($vocabularyId, $lessonState['answered_ids'], true)) {
-            $vocabulary = $questions[$questionIndex];
-            $isCorrect = $answerValidator->matches(
-                $validated['answer'],
-                $vocabulary->correct_answer ?? '',
-                $vocabulary->question_type
-            );
-
-            if ($isCorrect) {
-                return response()->json([
-                    'correct' => true,
-                    'already_accepted' => true,
-                    'lesson_completed' => $lessonState['lesson_completed'],
-                    'hearts' => $lessonState['hearts'],
-                    'progression' => [
-                        'fire_awarded' => 0,
-                        'streak_count' => (int) DB::table('users')->where('id', auth()->id())->value('streak_count'),
-                    ],
-                ]);
-            }
-        }
-
-        if ($questionIndex !== $lessonState['next_index']) {
-            return response()->json([
-                'correct' => false,
-                'message' => 'Answer the current lesson question first.',
+        if (in_array($vocabularyId, $lessonState['answered_ids'], true)) {
+            // Duplicate/stale submission for a question that is already correct: never
+            // re-grade it, re-queue it, or move any counter.
+            return response()->json(array_merge([
+                'correct' => true,
+                'already_accepted' => true,
+                'lesson_completed' => (bool) $lessonState['lesson_completed'],
                 'hearts' => $lessonState['hearts'],
-            ], 409);
+                'progression' => [
+                    'fire_awarded' => 0,
+                    'streak_count' => (int) DB::table('users')->where('id', auth()->id())->value('streak_count'),
+                ],
+            ], $this->questionFlowPayload($lessonState, $questionIds)));
         }
 
         $vocabulary = $questions[$questionIndex];
@@ -320,6 +327,11 @@ class UserTrainingController extends Controller
             $vocabulary->correct_answer ?? '',
             $vocabulary->question_type
         );
+
+        $questionCount = count($questionIds);
+        $inInitialRound = (int) $lessonState['next_index'] < $questionCount;
+        $isCurrentQuestion = $inInitialRound
+            && $questionIndex === (int) $lessonState['next_index'];
 
         if (!$isCorrect) {
             if (auth()->user()->role === 'student') {
@@ -332,6 +344,18 @@ class UserTrainingController extends Controller
                 ]);
             }
 
+            // Record the miss for the retry round (deduplicated) and keep moving through
+            // the initial question set instead of forcing another attempt right now.
+            $lessonState['retry_ids'] = $this->recordRetryFailure(
+                $lessonState['retry_ids'],
+                $vocabularyId,
+                !$inInitialRound
+            );
+
+            if ($isCurrentQuestion) {
+                $lessonState['next_index'] = $questionIndex + 1;
+            }
+
             $lessonState['hearts'] = auth()->user()->role === 'student'
                 ? $heartService->consume(auth()->user())
                 : max(0, (int) $lessonState['hearts'] - 1);
@@ -341,16 +365,30 @@ class UserTrainingController extends Controller
             }
             $this->storeLessonState($sessionKey, $lessonState);
 
-            return response()->json([
+            return response()->json(array_merge([
                 'correct' => false,
                 'hearts' => $lessonState['hearts'],
                 'session_ended' => $lessonState['session_ended'],
-            ], 422);
+                'lesson_completed' => (bool) $lessonState['lesson_completed'],
+            ], $this->questionFlowPayload($lessonState, $questionIds)), 422);
         }
 
-        $lessonState['answered_ids'][] = $vocabularyId;
-        $lessonState['next_index'] = $questionIndex + 1;
-        $lessonCompleted = count($lessonState['answered_ids']) === count($questionIds);
+        if (!in_array($vocabularyId, $lessonState['answered_ids'], true)) {
+            $lessonState['answered_ids'][] = $vocabularyId;
+        }
+
+        // A question leaves the retry queue only after it is answered correctly.
+        $lessonState['retry_ids'] = array_values(array_filter(
+            array_map('intval', $lessonState['retry_ids']),
+            fn ($id) => $id !== $vocabularyId
+        ));
+
+        if ($isCurrentQuestion) {
+            $lessonState['next_index'] = $questionIndex + 1;
+        }
+
+        $lessonCompleted = count($lessonState['answered_ids']) === $questionCount
+            && empty($lessonState['retry_ids']);
 
         $progressionResult = null;
 
@@ -368,20 +406,15 @@ class UserTrainingController extends Controller
             );
         }
 
-        if (!$lessonCompleted && $lessonState['next_index'] >= count($questionIds)) {
-            $lessonState['session_ended'] = true;
-            $lessonState['end_reason'] = 'questions_finished';
-        }
-
         $this->storeLessonState($sessionKey, $lessonState);
 
-        return response()->json([
+        return response()->json(array_merge([
             'correct' => true,
             'lesson_completed' => $lessonCompleted,
             'session_ended' => $lessonState['session_ended'],
             'hearts' => $lessonState['hearts'],
             'progression' => $progressionResult,
-        ]);
+        ], $this->questionFlowPayload($lessonState, $questionIds)));
     }
 
     public function skipQuestion(Request $request, Lesson $lesson, LevelProgressionService $progression, HeartService $heartService)
@@ -405,6 +438,7 @@ class UserTrainingController extends Controller
 
         $sessionKey = $this->lessonProgressSessionKey(auth()->id(), $lesson->id);
         $lessonState = array_replace($this->newLessonState(), $this->loadLessonState($sessionKey) ?? []);
+        $lessonState = $this->normalizeLessonState($lessonState, $questionIds);
 
         if (auth()->user()->role === 'student') {
             $lessonState['hearts'] = $heartService->refresh(auth()->user());
@@ -425,14 +459,28 @@ class UserTrainingController extends Controller
             ], 409);
         }
 
-        if (in_array($vocabularyId, $lessonState['skipped_ids'], true)) {
-            return response()->json([
+        $questionCount = count($questionIds);
+        $inInitialRound = (int) $lessonState['next_index'] < $questionCount;
+        $currentPosition = null;
+        if ($inInitialRound) {
+            $currentPosition = (int) $lessonState['next_index'];
+        } elseif (!empty($lessonState['retry_ids'])) {
+            $retryPosition = array_search((int) $lessonState['retry_ids'][0], $questionIds, true);
+            $currentPosition = $retryPosition === false ? null : (int) $retryPosition;
+        }
+        $isCurrentQuestion = $currentPosition !== null && $questionIndex === $currentPosition;
+
+        if (!$isCurrentQuestion && in_array($vocabularyId, $lessonState['skipped_ids'], true)) {
+            // Duplicate submission for a question that was already skipped: acknowledge it
+            // without charging another heart or queueing it again.
+            return response()->json(array_merge([
                 'accepted' => true,
                 'already_skipped' => true,
                 'hearts' => $lessonState['hearts'],
                 'session_ended' => $lessonState['session_ended'],
+                'lesson_completed' => (bool) $lessonState['lesson_completed'],
                 'end_reason' => $lessonState['end_reason'] ?? null,
-            ]);
+            ], $this->questionFlowPayload($lessonState, $questionIds)));
         }
 
         if (($lessonState['session_ended'] ?? false) || ($lessonState['hearts'] ?? 0) <= 0) {
@@ -443,7 +491,7 @@ class UserTrainingController extends Controller
             ], 409);
         }
 
-        if ($questionIndex !== $lessonState['next_index']) {
+        if (!$isCurrentQuestion) {
             return response()->json([
                 'accepted' => false,
                 'message' => 'This question has already been passed or is not current.',
@@ -451,25 +499,40 @@ class UserTrainingController extends Controller
             ], 409);
         }
 
-        $lessonState['skipped_ids'][] = $vocabularyId;
-        $lessonState['next_index'] = $questionIndex + 1;
+        if (!in_array($vocabularyId, $lessonState['skipped_ids'], true)) {
+            $lessonState['skipped_ids'][] = $vocabularyId;
+        }
+
+        // Skips join the retry queue (deduplicated) and the learner moves straight on to
+        // the next question instead of being held on this one.
+        $lessonState['retry_ids'] = $this->recordRetryFailure(
+            $lessonState['retry_ids'],
+            $vocabularyId,
+            !$inInitialRound
+        );
+
+        if ($inInitialRound) {
+            $lessonState['next_index'] = $questionIndex + 1;
+        }
+
         $lessonState['hearts'] = auth()->user()->role === 'student'
             ? $heartService->consume(auth()->user())
             : max(0, (int) $lessonState['hearts'] - 1);
 
-        if ($lessonState['hearts'] === 0 || $lessonState['next_index'] >= count($questionIds)) {
+        if ($lessonState['hearts'] === 0) {
             $lessonState['session_ended'] = true;
-            $lessonState['end_reason'] = $lessonState['hearts'] === 0 ? 'hearts' : 'questions_finished';
+            $lessonState['end_reason'] = 'hearts';
         }
 
         $this->storeLessonState($sessionKey, $lessonState);
 
-        return response()->json([
+        return response()->json(array_merge([
             'accepted' => true,
             'hearts' => $lessonState['hearts'],
             'session_ended' => $lessonState['session_ended'],
+            'lesson_completed' => (bool) $lessonState['lesson_completed'],
             'end_reason' => $lessonState['end_reason'] ?? null,
-        ]);
+        ], $this->questionFlowPayload($lessonState, $questionIds)));
     }
 
     public function heartStatus(HeartService $heartService)
@@ -703,6 +766,7 @@ class UserTrainingController extends Controller
         $hasProgress = (int) ($state['next_index'] ?? 0) > 0
             || !empty($state['answered_ids'])
             || !empty($state['skipped_ids'])
+            || !empty($state['retry_ids'])
             || (int) ($state['learning_item_index'] ?? 0) > 0
             || !empty($state['taught_learning_item_ids'])
             || !empty($state['lesson_completed'])
@@ -748,9 +812,123 @@ class UserTrainingController extends Controller
             'next_index' => 0,
             'answered_ids' => [],
             'skipped_ids' => [],
+            'retry_ids' => [],
             'lesson_completed' => false,
             'session_ended' => false,
             'hearts' => max(0, min(self::DEFAULT_HEARTS, $hearts)),
+        ];
+    }
+
+    /**
+     * Keep the retry bookkeeping consistent with the question set:
+     * unique ids only, answered questions removed, and — once the initial pass is over —
+     * every unanswered question queued for a retry round. Also clears the legacy
+     * "questions_finished" end state, which no longer ends a session while retries remain.
+     */
+    private function normalizeLessonState(array $state, array $questionIds): array
+    {
+        $questionCount = count($questionIds);
+        $onlyValid = function ($ids) use ($questionIds): array {
+            $values = array_map('intval', is_array($ids) ? $ids : []);
+
+            return array_values(array_unique(array_filter(
+                $values,
+                fn ($id) => in_array($id, $questionIds, true)
+            )));
+        };
+
+        $state['next_index'] = max(0, min($questionCount, (int) ($state['next_index'] ?? 0)));
+        $state['answered_ids'] = $onlyValid($state['answered_ids'] ?? []);
+        $state['skipped_ids'] = $onlyValid($state['skipped_ids'] ?? []);
+
+        $retryIds = array_values(array_filter(
+            $onlyValid($state['retry_ids'] ?? []),
+            fn ($id) => !in_array($id, $state['answered_ids'], true)
+        ));
+
+        if (($state['lesson_completed'] ?? false) === false && $state['next_index'] >= $questionCount) {
+            foreach ($questionIds as $questionId) {
+                if (!in_array($questionId, $state['answered_ids'], true)
+                    && !in_array($questionId, $retryIds, true)) {
+                    $retryIds[] = $questionId;
+                }
+            }
+        }
+
+        $state['retry_ids'] = $retryIds;
+
+        if (($state['end_reason'] ?? null) === 'questions_finished'
+            && ($state['lesson_completed'] ?? false) === false
+            && (int) ($state['hearts'] ?? 0) > 0) {
+            $state['session_ended'] = false;
+            unset($state['end_reason']);
+        }
+
+        return $state;
+    }
+
+    /**
+     * Queue a failed/skipped question for the retry round without ever duplicating it.
+     * During the retry round the failed question moves to the back of the queue so it is
+     * asked again in a later cycle instead of immediately.
+     *
+     * @param  array<int>  $retryIds
+     * @return array<int>
+     */
+    private function recordRetryFailure(array $retryIds, int $vocabularyId, bool $rotateToBack): array
+    {
+        $retryIds = array_values(array_unique(array_map('intval', $retryIds)));
+
+        if (!in_array($vocabularyId, $retryIds, true)) {
+            $retryIds[] = $vocabularyId;
+
+            return $retryIds;
+        }
+
+        if ($rotateToBack && count($retryIds) > 1 && (int) $retryIds[0] === $vocabularyId) {
+            $retryIds = array_values(array_filter($retryIds, fn ($id) => $id !== $vocabularyId));
+            $retryIds[] = $vocabularyId;
+        }
+
+        return $retryIds;
+    }
+
+    /**
+     * Flow metadata shared by answer/skip responses and the view so the client can show the
+     * next question and a retry indicator that never changes the original question count.
+     *
+     * @param  array<int>  $questionIds
+     * @return array{phase: string, question_count: int, answered_count: int, retry_remaining: int, next_question_index: int|null}
+     */
+    private function questionFlowPayload(array $state, array $questionIds): array
+    {
+        $questionCount = count($questionIds);
+        $answeredIds = array_values(array_unique(array_map('intval', $state['answered_ids'] ?? [])));
+        $retryIds = array_values(array_unique(array_map('intval', $state['retry_ids'] ?? [])));
+        $completed = (bool) ($state['lesson_completed'] ?? false);
+        $ended = (bool) ($state['session_ended'] ?? false);
+        $nextIndex = (int) ($state['next_index'] ?? 0);
+
+        $phase = $completed
+            ? 'completed'
+            : ($nextIndex >= $questionCount ? 'retry' : 'initial');
+
+        $nextQuestionIndex = null;
+        if (!$completed && !$ended) {
+            if ($phase === 'retry') {
+                $position = !empty($retryIds) ? array_search($retryIds[0], $questionIds, true) : false;
+                $nextQuestionIndex = $position === false ? null : (int) $position;
+            } else {
+                $nextQuestionIndex = $nextIndex;
+            }
+        }
+
+        return [
+            'phase' => $phase,
+            'question_count' => $questionCount,
+            'answered_count' => count($answeredIds),
+            'retry_remaining' => count($retryIds),
+            'next_question_index' => $nextQuestionIndex,
         ];
     }
 

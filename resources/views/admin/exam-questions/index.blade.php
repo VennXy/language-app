@@ -5,11 +5,11 @@
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
         <div>
             <h2 class="text-white fw-bold mb-1">{{ $exam->title }}</h2>
-            <p class="text-white-50 mb-0">Exam status: {{ ucfirst($exam->status) }} · My Questions: {{ $questionCount }} / 5</p>
+            <p class="text-white-50 mb-0">Exam status: {{ ucfirst($exam->status) }} · My Questions: {{ $questionCount }}</p>
         </div>
         <div class="d-flex gap-2">
             <a class="btn btn-outline-light" href="{{ route('admin.exams.index') }}">All Available Exams</a>
-            @if($exam->status === 'draft' && $questionCount < 5)
+            @if($exam->status === 'draft')
                 <a class="btn text-white" href="{{ route('admin.exams.questions.create', $exam) }}" style="background:#f472b6;border:0">Add Question</a>
             @endif
         </div>

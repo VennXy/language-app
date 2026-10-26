@@ -4,7 +4,7 @@
 <div class="container-fluid px-0">
     <div class="mb-4">
         <h2 class="text-white fw-bold mb-1">{{ isset($question) ? 'Edit Question' : 'Add Question' }}</h2>
-        <p class="text-white-50 mb-0">{{ $exam->title }} · Draft exam · Maximum 5 questions per admin</p>
+        <p class="text-white-50 mb-0">{{ $exam->title }} · Draft exam · Unlimited questions per admin</p>
     </div>
     @if($errors->any())<div class="alert alert-danger">{{ $errors->first() }}</div>@endif
     <div class="card glass-card border-0 p-4 text-white" style="max-width:900px">

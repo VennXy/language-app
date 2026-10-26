@@ -11,13 +11,42 @@ use Illuminate\Http\Request;
 
 class LessonController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $lessons = Lesson::with('level')->orderBy('sort_order', 'asc')->paginate(10);
+        // Only an explicit asc/desc is honoured; anything else falls back to the default ordering.
+        $direction = in_array($request->query('sort'), ['asc', 'desc'], true) ? $request->query('sort') : null;
+        $search = trim((string) $request->query('q', ''));
+
+        $query = Lesson::query()->with('level');
+
+        if ($search !== '') {
+            // MySQL's default collation makes LIKE a case-insensitive partial match.
+            $query->where('title', 'like', '%' . $search . '%');
+        }
+
+        if ($direction !== null) {
+            // Rank by the real level code (A1..C2), never by the display name, then keep a
+            // stable, predictable order inside each level. The CASE ranking list is hard-coded
+            // and $direction is whitelisted above, so no arbitrary user input reaches the ORDER
+            // BY. CASE (rather than MySQL's FIELD) keeps this portable across MySQL and SQLite.
+            $rank = "CASE lv.level "
+                . "WHEN 'A1' THEN 1 WHEN 'A2' THEN 2 WHEN 'B1' THEN 3 "
+                . "WHEN 'B2' THEN 4 WHEN 'C1' THEN 5 WHEN 'C2' THEN 6 ELSE 7 END";
+            $query->orderByRaw(
+                "(SELECT {$rank} FROM levels lv WHERE lv.id = lessons.level_id) {$direction}"
+            )
+                ->orderBy('lessons.sort_order', 'asc')
+                ->orderBy('lessons.title', 'asc');
+        } else {
+            // Preserve the existing default ordering.
+            $query->orderBy('lessons.sort_order', 'asc');
+        }
+
+        $lessons = $query->paginate(10)->withQueryString();
         $levels = Level::orderBy('id', 'asc')->get();
         $categories = Category::all();
 
-        return view('admin.lessons.index', compact('lessons', 'levels', 'categories'));
+        return view('admin.lessons.index', compact('lessons', 'levels', 'categories', 'direction', 'search'));
     }
 
  public function store(Request $request, $lessonId)

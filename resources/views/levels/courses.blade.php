@@ -48,6 +48,17 @@
     </div> 
 
 
+    @if(!empty($trainingComplete) && $lessons->isNotEmpty())
+        <div class="alert alert-success d-flex align-items-center justify-content-between gap-3 flex-wrap" role="alert">
+            <span>
+                <i class="bi bi-check-circle-fill me-1"></i>
+                You’ve completed this level’s Training. Ready to take the Exams?
+            </span>
+            <a class="btn btn-sm btn-dark" href="{{ route('student.exams.index') }}">Take the Exams</a>
+        </div>
+    @endif
+
+
     <!-- Lessons / History List -->
 <div class="row g-3">
     @forelse($lessons as $lesson)

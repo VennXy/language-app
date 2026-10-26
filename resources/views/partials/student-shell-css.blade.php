@@ -61,7 +61,7 @@
    overlay (z-890), so the exit/session-ended box renders under the chrome and its
    buttons cannot be clicked. Root-level compositing keeps modals above all shell layers. */
 .sk-dash .sk-main{position:relative;}
-@media (min-width:992px){.sk-dash .sk-main{margin-left:var(--sk-side-w);}}
+@media (min-width:992px){.sk-dash .sk-main{margin-left:var(--sk-side-w); transition:margin-left .3s ease;}}
 .sk-dash .sk-wrap{max-width:1280px; margin:0 auto; padding:44px 32px 56px;}
 /* ================= Fixed sakura sidebar ================= */
 .sk-dash .sk-side{
@@ -73,6 +73,7 @@
   border-right:1px solid rgba(192,132,252,.15);
   box-shadow:8px 0 32px rgba(4,2,16,.35);
   overflow-y:auto; scrollbar-width:thin; scrollbar-color:rgba(192,132,252,.3) transparent;
+  transition:width .3s ease, padding .3s ease;
 }
 .sk-dash .sk-side::-webkit-scrollbar{width:5px;}
 .sk-dash .sk-side::-webkit-scrollbar-thumb{background:rgba(192,132,252,.3);border-radius:9px;}
@@ -90,28 +91,104 @@
 .sk-dash .sk-brand-sub{display:block; font-size:.6rem; letter-spacing:.18em; color:var(--sk-mute);}
 .sk-dash .sk-nav{display:flex; flex-direction:column; gap:4px;}
 .sk-dash .sk-nav-a{
+  position:relative;
+  --sk-ic:#d8b4fe; --sk-ic-rgb:216,180,254;
   display:flex; align-items:center; gap:11px; width:100%;
   padding:10px 13px; border-radius:12px; text-align:left;
   font-size:.89rem; font-weight:500; text-decoration:none;
   color:rgba(228,224,255,.72); background:transparent;
   border:1px solid transparent; font-family:inherit; cursor:pointer;
-  transition:background .22s ease, color .22s ease, box-shadow .22s ease, transform .22s ease;
+  transition:background .22s ease, color .22s ease, border-color .22s ease, box-shadow .22s ease, transform .22s ease;
 }
-.sk-dash .sk-nav-a i{font-size:1rem; width:20px; text-align:center; color:rgba(216,180,254,.85);}
-.sk-dash .sk-nav-a:hover{background:rgba(255,255,255,.06); color:#fff; transform:translateX(2px);}
+/* Icon chip — colour driven by the per-item sk-ic-* palette below */
+.sk-dash .sk-nav-a i{
+  flex:0 0 auto; display:inline-grid; place-items:center;
+  width:28px; height:28px; border-radius:9px; font-size:.95rem;
+  color:var(--sk-ic); background:rgba(var(--sk-ic-rgb),.13);
+  box-shadow:inset 0 0 0 1px rgba(var(--sk-ic-rgb),.22);
+  transition:background .22s ease, box-shadow .22s ease;
+}
+/* Modern palette: violet / blue / cyan / amber / pink / green / purple / sky */
+.sk-dash .sk-nav-a.sk-ic-violet{--sk-ic:#a78bfa; --sk-ic-rgb:167,139,250;}
+.sk-dash .sk-nav-a.sk-ic-blue{--sk-ic:#60a5fa; --sk-ic-rgb:96,165,250;}
+.sk-dash .sk-nav-a.sk-ic-cyan{--sk-ic:#22d3ee; --sk-ic-rgb:34,211,238;}
+.sk-dash .sk-nav-a.sk-ic-amber{--sk-ic:#fbbf24; --sk-ic-rgb:251,191,36;}
+.sk-dash .sk-nav-a.sk-ic-pink{--sk-ic:#f472b6; --sk-ic-rgb:244,114,182;}
+.sk-dash .sk-nav-a.sk-ic-green{--sk-ic:#34d399; --sk-ic-rgb:52,211,153;}
+.sk-dash .sk-nav-a.sk-ic-purple{--sk-ic:#c084fc; --sk-ic-rgb:192,132,252;}
+.sk-dash .sk-nav-a.sk-ic-sky{--sk-ic:#38bdf8; --sk-ic-rgb:56,189,248;}
+.sk-dash .sk-nav-a:hover{
+  background:rgba(var(--sk-ic-rgb),.10); color:#fff; transform:translateX(2px);
+}
+.sk-dash .sk-nav-a:hover i{background:rgba(var(--sk-ic-rgb),.24); box-shadow:0 0 12px rgba(var(--sk-ic-rgb),.40);}
 .sk-dash .sk-nav-a:focus-visible{outline:2px solid rgba(216,180,254,.6); outline-offset:2px;}
 .sk-dash .sk-nav-a.is-active{
-  background:linear-gradient(90deg,rgba(168,85,247,.30),rgba(236,72,153,.16));
-  border-color:rgba(216,180,254,.45); color:#f9a8d4; font-weight:700;
-  box-shadow:0 0 18px rgba(168,85,247,.32), inset 0 0 14px rgba(244,114,182,.08);
+  background:linear-gradient(90deg,rgba(var(--sk-ic-rgb),.26),rgba(168,85,247,.12));
+  border-color:rgba(var(--sk-ic-rgb),.50); color:#fff; font-weight:700;
+  box-shadow:0 0 18px rgba(var(--sk-ic-rgb),.28), inset 0 0 14px rgba(var(--sk-ic-rgb),.10);
 }
-.sk-dash .sk-nav-a.is-active i{color:#fbcfe8;}
+.sk-dash .sk-nav-a.is-active i{
+  background:rgba(var(--sk-ic-rgb),.30);
+  box-shadow:0 0 12px rgba(var(--sk-ic-rgb),.55), inset 0 0 0 1px rgba(var(--sk-ic-rgb),.45);
+}
 .sk-dash .sk-nav-sep{margin:10px 6px 4px; border-top:1px solid rgba(255,255,255,.09);}
 .sk-dash .sk-nav-form{margin:0;}
 .sk-dash .sk-nav-form button:hover{color:#fff;}
+/* Sidebar footer + collapse controls */
+.sk-dash .sk-side-close{display:none;}
+.sk-dash .sk-side-actions{margin-top:auto; display:flex; flex-direction:column; gap:10px;}
+.sk-dash .sk-side-toggle{
+  display:flex; align-items:center; gap:11px; width:100%;
+  padding:10px 13px; border-radius:12px; text-align:left; cursor:pointer;
+  font-family:inherit; font-size:.84rem; font-weight:600;
+  color:rgba(228,224,255,.72);
+  background:rgba(255,255,255,.05); border:1px solid rgba(192,132,252,.24);
+  transition:background .22s ease, color .22s ease, border-color .22s ease;
+}
+.sk-dash .sk-side-toggle i{
+  flex:0 0 auto; display:inline-grid; place-items:center;
+  width:28px; height:28px; border-radius:9px; font-size:.9rem;
+  color:#c4b5fd; background:rgba(167,139,250,.15);
+  transition:transform .3s ease;
+}
+.sk-dash .sk-side-toggle:hover{background:rgba(168,85,247,.16); border-color:rgba(216,180,254,.45); color:#fff;}
+.sk-dash .sk-side-toggle:focus-visible{outline:2px solid rgba(216,180,254,.6); outline-offset:2px;}
 .sk-dash .sk-side-foot{
   margin-top:auto; padding:12px 10px 4px; text-align:center;
   font-size:.64rem; letter-spacing:.1em; color:rgba(226,220,255,.45);
+}
+
+/* ================= Collapsible sidebar (desktop ≥992px) ================= */
+@media (min-width:992px){
+  body.sk-side-collapsed .sk-dash{--sk-side-w:76px;}
+  body.sk-side-collapsed .sk-dash-footer{--sk-side-w:76px;}
+  body.sk-side-collapsed .sk-dash .sk-side{
+    width:76px; padding-left:11px; padding-right:11px; overflow:visible;
+  }
+  body.sk-side-collapsed .sk-dash .sk-brand{justify-content:center; padding-left:0; padding-right:0;}
+  body.sk-side-collapsed .sk-dash .sk-brand-text{display:none;}
+  /* Labels leave the visual layer but stay in the accessibility tree */
+  body.sk-side-collapsed .sk-dash .sk-nav-label{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;
+  }
+  body.sk-side-collapsed .sk-dash .sk-nav-a{justify-content:center; padding:10px 8px; gap:0;}
+  body.sk-side-collapsed .sk-dash .sk-nav-sep{margin:10px 2px 4px;}
+  body.sk-side-collapsed .sk-dash .sk-side-foot{display:none;}
+  body.sk-side-collapsed .sk-dash .sk-side-toggle{justify-content:center; padding:10px 8px; gap:0;}
+  body.sk-side-collapsed .sk-dash .sk-side-toggle i{transform:scaleX(-1);}
+  /* Collapsed-mode tooltips — pure CSS, no new dependency */
+  body.sk-side-collapsed .sk-dash .sk-nav-a[data-tip]:hover::after,
+  body.sk-side-collapsed .sk-dash .sk-nav-a[data-tip]:focus-visible::after{
+    content:attr(data-tip);
+    position:absolute; left:calc(100% + 14px); top:50%; transform:translateY(-50%);
+    z-index:1000; padding:7px 11px; border-radius:9px; white-space:nowrap;
+    background:rgba(18,9,38,.97); color:#f5f3ff;
+    font-size:.74rem; font-weight:600; letter-spacing:.02em;
+    border:1px solid rgba(192,132,252,.38);
+    box-shadow:0 8px 22px rgba(4,2,16,.55);
+    pointer-events:none;
+  }
 }
 
 /* ================= Buttons / pills / badges ================= */
@@ -184,6 +261,14 @@
     padding-top:70px;
   }
   .sk-dash .sk-side.is-open{transform:translateX(0);}
+  .sk-dash .sk-side-close{
+    display:grid; place-items:center; position:absolute; top:14px; right:12px;
+    width:34px; height:34px; border-radius:10px; cursor:pointer;
+    background:rgba(168,85,247,.16); border:1px solid rgba(192,132,252,.38);
+    color:#fbcfe8; font-size:1rem;
+  }
+  .sk-dash .sk-side-close:focus-visible{outline:2px solid rgba(216,180,254,.6); outline-offset:2px;}
+  .sk-dash .sk-side-toggle{display:none;}
   .sk-dash .sk-side-overlay{
     display:block; position:fixed; inset:0; z-index:890;
     background:rgba(6,3,16,.55); opacity:0; pointer-events:none; transition:opacity .3s ease;
@@ -267,11 +352,12 @@
 /* ================= Footer clears the fixed sidebar ================= */
 .sk-dash-footer{--sk-side-w:252px;}
 @media (min-width:992px){
-  .sk-dash-footer{margin-left:var(--sk-side-w);}
+  .sk-dash-footer{margin-left:var(--sk-side-w); transition:margin-left .3s ease;}
 }
 
 @media (prefers-reduced-motion:reduce){
   .sk-dash .sk-orb, .sk-dash .sk-petal{animation:none !important;}
   .sk-dash .sk-stat:hover, .sk-dash .sk-btn:hover, .sk-dash .sk-nav-a:hover{transform:none !important;}
+  .sk-dash .sk-side, .sk-dash .sk-main, .sk-dash-footer{transition:none !important;}
 }
 </style>

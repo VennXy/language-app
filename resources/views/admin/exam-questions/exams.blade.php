@@ -17,10 +17,9 @@
                         <span class="badge bg-warning text-dark align-self-start">Draft</span>
                     </div>
                     <p class="text-white-50 mb-1">Duration: {{ $exam->duration_minutes }} minutes</p>
-                    <p class="text-white-50 mb-4">My questions: {{ $exam->my_questions_count }} / 5</p>
+                    <p class="text-white-50 mb-4">My questions: {{ $exam->my_questions_count }}</p>
                     <div class="mt-auto">
-                        <a class="btn {{ $exam->my_questions_count >= 5 ? 'btn-outline-secondary disabled' : 'btn-outline-light' }}"
-                           @if($exam->my_questions_count < 5) href="{{ route('admin.exams.questions.create', $exam) }}" @else aria-disabled="true" @endif>
+                        <a class="btn btn-outline-light" href="{{ route('admin.exams.questions.create', $exam) }}">
                             Add Question
                         </a>
                         <a class="btn btn-link text-white-50" href="{{ route('admin.exams.questions.index', $exam) }}">My Questions</a>

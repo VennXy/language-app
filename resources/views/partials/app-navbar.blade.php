@@ -4,7 +4,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark py-3">
         <div class="container max-w-7xl">
             <!-- Brand / Logo -->
-            <a class="navbar-brand fw-extrabold fs-3 gradient-text" href="{{ url('/') }}">SakuraLearn</a>
+            <a class="navbar-brand fw-extrabold fs-3 gradient-text" href="{{ url('/') }}">NihongoBloom</a>
             
             <!-- Mobile Toggle Button (Hamburger) -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -13,8 +13,9 @@
 
             <!-- Navbar Collapse Wrapper -->
             <div class="collapse navbar-collapse" id="navbarNav">
-                <!-- Center Navigation Links -->
+                <!-- Center Navigation Links (hidden on Login & Register pages) -->
                 <ul class="navbar-nav mx-auto my-2 my-lg-0 gap-1 align-items-lg-center">
+                    @unless(request()->routeIs('login', 'register'))
                     <!-- Home Link -->
                     <li class="nav-item">
                         <a href="{{ route('home') }}" class="nav-link px-4 py-2 rounded-pill small fw-medium text-light {{ request()->routeIs('home') ? 'active bg-white bg-opacity-10 text-white' : 'opacity-75' }}">
@@ -35,6 +36,7 @@
                             <i class="bi bi-grid-3x3-gap me-2"></i> Kana Chart
                         </a>
                     </li>
+                    @endunless
                 </ul>
 
                 <!-- Right Side: Navbar (Login / Register / User Profile) -->
@@ -133,19 +135,14 @@
                             
                             <!-- dropdown-menu-glass class -->
                             <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-glass text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1">
+                                {{-- Public Home Page account menu: intentionally only Dashboard + Logout.
+                                     Dashboard resolves to the correct dashboard for the current role. --}}
                                 @if(Auth::user()->role === 'student')
-                                    {{-- Student account menu: intentionally only My Dashboard + Logout. --}}
                                     <li><a class="dropdown-item py-2" href="{{ route('student.dashboard') }}"><i class="bi bi-speedometer2 me-2"></i> My Dashboard</a></li>
-                                @else
-                                    <li><a class="dropdown-item py-2" href="{{ route('profile.edit') }}"><i class="bi bi-person me-2"></i> My Profile</a></li>
-                                    <li><a class="dropdown-item py-2" href="{{ route('profile.access') }}"><i class="bi bi-shield-lock me-2"></i> Manage Access</a></li>
-                                @endif
-                                @if(in_array(Auth::user()->role, ['admin', 'super_admin'], true))
-                                    <li>
-                                        <a class="dropdown-item py-2" href="{{ Auth::user()->role === 'admin' ? route('admin.dashboard') : route('super.admin.dashboard') }}">
-                                            <i class="bi bi-speedometer2 me-2"></i>Dashboard
-                                        </a>
-                                    </li>
+                                @elseif(Auth::user()->role === 'admin')
+                                    <li><a class="dropdown-item py-2" href="{{ route('admin.dashboard') }}"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
+                                @elseif(Auth::user()->role === 'super_admin')
+                                    <li><a class="dropdown-item py-2" href="{{ route('super.admin.dashboard') }}"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
                                 @endif
                                 <li><hr class="dropdown-divider border-secondary border-opacity-25"></li>
                                 <li>

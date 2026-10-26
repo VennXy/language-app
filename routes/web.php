@@ -36,7 +36,12 @@ Route::get('/home', function () {
 Route::middleware(['auth', 'role:super_admin'])->prefix('super-admin')->name('super.admin.')->group(function () {
     
     Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
-    
+
+    // Super Admin Settings (Super-Admin-specific destination, separate from user settings)
+    Route::get('/settings', [\App\Http\Controllers\SuperAdmin\SettingsController::class, 'index'])->name('settings');
+    Route::get('/settings/profile', [\App\Http\Controllers\SuperAdmin\SettingsController::class, 'profile'])->name('settings.profile');
+    Route::get('/settings/access', [\App\Http\Controllers\SuperAdmin\SettingsController::class, 'access'])->name('settings.access');
+
     // Lesson Management Routes
     Route::get('/lessons', [LessonController::class, 'index'])->name('lessons.index');
     Route::post('/lessons', [LessonController::class, 'store'])->name('lessons.store');
@@ -91,6 +96,9 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('super-admin')->name('su
     Route::get('/exams/{exam}/question-review', [ExamQuestionReviewController::class, 'index'])->name('exam.questions.index');
     Route::post('/exam-questions/{question}/approve', [ExamQuestionReviewController::class, 'approve'])->name('exam.questions.approve');
     Route::post('/exam-questions/{question}/reject', [ExamQuestionReviewController::class, 'reject'])->name('exam.questions.reject');
+    // Super Admin submission of their OWN draft questions (mirrors the Admin
+    // eligibility/ownership rules; review + approval stays a separate step).
+    Route::post('/exam-questions/{question}/submit', [\App\Http\Controllers\SuperAdmin\ExamQuestionController::class, 'submit'])->name('exam.questions.submit');
 
 
     // Admin Management Routes

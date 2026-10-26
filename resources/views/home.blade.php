@@ -141,7 +141,6 @@
         animation: floatAnim 4s ease-in-out infinite;
     }
 
-    /* Button ရဲ့ အခြေခံ ဒီဇိုင်းနှင့် Pink-Violet Gradient */
     .btn-pink-violet-glow {
         background: linear-gradient(135deg, #ff7eb3 0%, #8a2be2 100%);
         color: #ffffff;
@@ -299,7 +298,7 @@
                     <!-- ================================= -->
                     <div class="floating-card card-sakana">
 
-                        <div class="hiragana-symbol">あ</div>
+                        <div class="hiragana-symbol">さ</div>
 
                         <div class="mini-illustration fish">
                             🐟
@@ -321,7 +320,7 @@
                     <!-- ================================= -->
                     <div class="floating-card card-yama">
 
-                        <div class="hiragana-symbol">か</div>
+                        <div class="hiragana-symbol">や</div>
 
                         <div class="mini-illustration mountain-icon">
                             🏔️
@@ -362,7 +361,7 @@
 
                     <!-- ================================= -->
                     <!-- PHONE MOCKUP                       -->
-                    <!-- ================================= -->
+                    <!-- ================================= --> 
                     <div class="phone-wrapper">
 
                         <div class="phone">
@@ -1694,7 +1693,7 @@
         <!-- Section Header -->
         <div class="text-center mx-auto mb-5" style="max-width: 750px;">
             <h2 class="display-5 fw-bold font-serif mb-3 text-white">
-                SakuraLearn is your <span style="color: #ffc107;">all-in-one</span> Japanese learning platform
+                NihongoBloom is your <span style="color: #ffc107;">all-in-one</span> Japanese learning platform
             </h2>
             <p class="text-light opacity-75 fs-5">
                 Master Japanese naturally with powerful tools designed for your learning journey.
@@ -1873,7 +1872,7 @@
     position: relative;
     max-width: 1100px;
     margin: 0 auto;
-    padding: 1rem 0;
+    padding: 1rem 0; 
 }
 
 /* Reduce vertical gaps between grid rows if applicable */
@@ -1882,99 +1881,6 @@
 }
 </style>
 
-<!-- Continuous Scroll / Marquee Section (User Feedback - Testimonials) -->
-<section class="py-5 position-relative overflow-hidden" style="background-color: #0b0f19; border-top: 1px solid rgba(192, 132, 252, 0.05);">
-    <div class="container-fluid px-0">
-        
-        <div class="text-center mx-auto mb-4" style="max-width: 600px;">
-            <h4 class="h5 fw-bold text-white mb-1 font-serif">Loved by Language Learners</h4>
-            <p class="text-muted small mb-0">See what others are saying about their journey to fluency with Kotoba</p>
-        </div>
-
-        <!-- Marquee Wrapper -->
-        <div class="marquee-wrapper position-relative" style="width: 100%; overflow: hidden; white-space: nowrap; padding: 10px 0;">
-            
-            <!-- Fades on edges to blend with background -->
-            <div class="position-absolute top-0 start-0 h-100" style="width: 150px; background: linear-gradient(to right, #0b0f19, transparent); z-index: 2;"></div>
-            <div class="position-absolute top-0 end-0 h-100" style="width: 150px; background: linear-gradient(to left, #0b0f19, transparent); z-index: 2;"></div>
-
-            <!-- Marquee Content (The moving elements) -->
-            <div class="marquee-content d-inline-flex align-items-center gap-4" style="animation: marqueeScroll 50s linear infinite;">
-                
-                <!-- Feedback Item 1 -->
-                <div class="marquee-item rounded-4 p-4 shadow-sm" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(192, 132, 252, 0.2); width: 350px; white-space: normal; vertical-align: top;">
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User 1" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
-                        <div>
-                            <div class="text-white fw-bold">Kenjiro Sato</div>
-                        </div>
-                        <div class="ms-auto text-warning fs-6">
-                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                        </div>
-                    </div>
-                    <p class="text-light opacity-85 small mb-0" style="line-height: 1.6;">"The visual mnemonics are a game-changer! I used to struggle with Kanji, but now I remember them effortlessly. Highly recommended for beginners!"</p>
-                </div>
-
-                <!-- Feedback Item 2 -->
-                <div class="marquee-item rounded-4 p-4 shadow-sm" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(192, 132, 252, 0.2); width: 350px; white-space: normal; vertical-align: top;">
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User 2" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
-                        <div>
-                            <div class="text-white fw-bold">Aiko Tanaka</div>
-                        </div>
-                        <div class="ms-auto text-warning fs-6">
-                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                        </div>
-                    </div>
-                    <p class="text-light opacity-85 small mb-0" style="line-height: 1.6;">"I love that I can practice for just 5 minutes a day. It fits perfectly into my lunch break. The speaking exercises have really helped me feel confident."</p>
-                </div>
-
-                <!-- Feedback Item 3 -->
-                <div class="marquee-item rounded-4 p-4 shadow-sm" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(192, 132, 252, 0.2); width: 350px; white-space: normal; vertical-align: top;">
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <img src="https://randomuser.me/api/portraits/men/76.jpg" alt="User 3" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
-                        <div>
-                            <div class="text-white fw-bold">Michael Chen</div>
-                        </div>
-                        <div class="ms-auto text-warning fs-6">
-                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
-                        </div>
-                    </div>
-                    <p class="text-light opacity-85 small mb-0" style="line-height: 1.6;">"The lessons are structured so well. I've tried other apps, but Kotoba makes the grammar concepts much easier to understand. The daily streak keeps me motivated."</p>
-                </div>
-                
-                <!-- Feedback Item 4 (Duplicate Item 1 for seamless loop) -->
-                <div class="marquee-item rounded-4 p-4 shadow-sm" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(192, 132, 252, 0.2); width: 350px; white-space: normal; vertical-align: top;">
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User 1" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
-                        <div>
-                            <div class="text-white fw-bold">Kenjiro Sato</div>
-                        </div>
-                         <div class="ms-auto text-warning fs-6">
-                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                        </div>
-                    </div>
-                    <p class="text-light opacity-85 small mb-0" style="line-height: 1.6;">"The visual mnemonics are a game-changer! I used to struggle with Kanji, but now I remember them effortlessly. Highly recommended for beginners!"</p>
-                </div>
-                 <!-- Feedback Item 5 (Duplicate Item 2 for seamless loop) -->
-                <div class="marquee-item rounded-4 p-4 shadow-sm" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(192, 132, 252, 0.2); width: 350px; white-space: normal; vertical-align: top;">
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User 2" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
-                        <div>
-                            <div class="text-white fw-bold">Aiko Tanaka</div>
-                        </div>
-                         <div class="ms-auto text-warning fs-6">
-                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                        </div>
-                    </div>
-                    <p class="text-light opacity-85 small mb-0" style="line-height: 1.6;">"I love that I can practice for just 5 minutes a day. It fits perfectly into my lunch break. The speaking exercises have really helped me feel confident."</p>
-                </div>
-
-            </div>
-        </div>
-
-    </div>
-</section>
 
 <!-- CSS Animation for Continuous Scroll & Pause on Hover -->
 <style>

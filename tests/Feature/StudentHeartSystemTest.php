@@ -295,7 +295,9 @@ class StudentHeartSystemTest extends TestCase
         $this->get(route('user.training', $lesson->id))
             ->assertOk()
             ->assertViewHas('lessonState', fn (array $state): bool => $state['hearts'] === 1
-                && $state['next_index'] === 1
+                // The wrong answer advanced past the second question and queued it for retry.
+                && $state['next_index'] === 2
+                && $state['retry_ids'] === [$secondQuestionId]
                 && $state['answered_ids'] === [$firstQuestionId]
                 && $state['learning_item_index'] === 1
                 && $state['taught_learning_item_ids'] === [$learningItemId]
@@ -603,7 +605,9 @@ class StudentHeartSystemTest extends TestCase
             ->assertOk()
             ->assertViewHas('isTeaching', false)
             ->assertViewHas('lessonState', fn (array $state): bool => $state['hearts'] === 1
-                && $state['next_index'] === 1
+                // The wrong answer advanced past the second question and queued it for retry.
+                && $state['next_index'] === 2
+                && $state['retry_ids'] === [$secondQuestionId]
                 && $state['answered_ids'] === [$firstQuestionId]
                 && $state['learning_item_index'] === 1
                 && $state['taught_learning_item_ids'] === [$learningItemId]
@@ -791,7 +795,9 @@ class StudentHeartSystemTest extends TestCase
         $this->get(route('user.training', $lesson->id))
             ->assertOk()
             ->assertViewHas('isTeaching', false)
-            ->assertViewHas('lessonState', fn (array $state): bool => $state['next_index'] === 0
+            ->assertViewHas('lessonState', fn (array $state): bool => $state['next_index'] === 1
+                // The wrong answer advanced past the first question and queued it for retry.
+                && $state['retry_ids'] === [$firstQuestionId]
                 && $state['answered_ids'] === []
                 && $state['hearts'] === 1
                 && !$state['session_ended']);

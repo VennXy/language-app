@@ -9,7 +9,7 @@ class Level extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'title', 'description'];
+    protected $fillable = ['name', 'level', 'tier', 'title', 'description'];
 
     public function lessons()
     {

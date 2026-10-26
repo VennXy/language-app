@@ -1,18 +1,31 @@
-@section('student_shell', true)
-@extends('layouts.app')
+@php
+    // Super Admins reach these shared views via super.admin.settings.* and must stay inside the
+    // Super Admin shell (layouts.admin). Regular users keep the student shell (layouts.app) exactly as before.
+    $isSuperAdmin = auth()->check() && auth()->user()->role === 'super_admin';
+@endphp
+@extends($isSuperAdmin ? 'layouts.admin' : 'layouts.app')
 
-@section('content')
+@section('student_shell', true)
+
+@section($isSuperAdmin ? 'admin_content' : 'content')
 <div class="container py-5">
     <div class="row justify-content-center">
         <!-- Sidebar -->
         <div class="col-md-3 mb-4">
             <div class="card bg-dark text-white border border-secondary shadow-lg p-3">
                 <h5 class="fw-bold mb-3 px-3 text-purple" style="color: #c084fc;">Settings</h5>
+                @php
+                    // Super Admins reach these shared views via super.admin.settings.*; keep their
+                    // in-page navigation inside the Super Admin area instead of the regular user routes.
+                    $isSuperAdmin = auth()->check() && auth()->user()->role === 'super_admin';
+                    $profileNavRoute = $isSuperAdmin ? 'super.admin.settings.profile' : 'profile.edit';
+                    $accessNavRoute  = $isSuperAdmin ? 'super.admin.settings.access' : 'profile.access';
+                @endphp
                 <div class="list-group list-group-flush bg-transparent">
-                    <a href="{{ route('profile.edit') }}" class="list-group-item list-group-item-action bg-transparent text-white border-0 rounded mb-1 {{ request()->routeIs('profile.edit') ? 'active-sidebar-item' : '' }}">
+                    <a href="{{ route($profileNavRoute) }}" class="list-group-item list-group-item-action bg-transparent text-white border-0 rounded mb-1 {{ request()->routeIs('profile.edit', 'super.admin.settings.profile') ? 'active-sidebar-item' : '' }}">
                         <i class="bi bi-person me-2"></i> Profile
                     </a>
-                    <a href="{{ route('profile.access') }}" class="list-group-item list-group-item-action bg-transparent text-white border-0 rounded mb-1 {{ request()->routeIs('profile.access') ? 'active-sidebar-item' : '' }}">
+                    <a href="{{ route($accessNavRoute) }}" class="list-group-item list-group-item-action bg-transparent text-white border-0 rounded mb-1 {{ request()->routeIs('profile.access', 'super.admin.settings.access') ? 'active-sidebar-item' : '' }}">
                         <i class="bi bi-shield-lock me-2"></i> Manage Access
                     </a>
                 </div>
@@ -49,10 +62,8 @@
                                 $email = Auth::user()->email;
                                 $maskedEmail = substr($email, 0, 3) . '****' . strstr($email, '@');
                             @endphp
-                            <!-- Mask လုပ်ထားသော Email ကို အစပိုင်းတွင် ပြသမည်၊ data-real-email တွင် အီးမေးလ်အစစ်ကို သိမ်းထားမည် -->
                             <input type="text" id="emailInput" value="{{ $maskedEmail }}" data-real-email="{{ Auth::user()->email }}" class="form-control bg-dark text-white border-secondary" readonly required>
                             
-                            <!-- ပုံမှန်အခြေအနေတွင် name ဖြုတ်ထားပြီး Edit လုပ်မှ ထည့်မည် (Database ထဲသို့ *** ကြီး မရောက်စေရန်) -->
                             <input type="hidden" name="email" id="hiddenEmailField" value="{{ Auth::user()->email }}">
 
                             <button type="button" class="btn btn-outline-light" id="editEmailBtn" onclick="toggleEmailEdit()">Change Email</button>

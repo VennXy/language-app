@@ -19,13 +19,13 @@
 <div class="container py-5" style="max-width:1000px">
     <div class="card border border-light border-opacity-10 p-4 p-md-5 text-white" style="background:rgba(255,255,255,.04);backdrop-filter:blur(14px);border-radius:18px">
         <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-4">
-            <div><h1 class="h2 gradient-text fw-bold">{{ $attempt->exam->title }} — Results</h1><span class="badge bg-{{ $attempt->status === 'submitted' ? 'success' : 'secondary' }}">{{ $attempt->status === 'submitted' ? 'Submitted' : 'Time expired' }}</span></div>
+            <div><h1 class="h2 gradient-text fw-bold">{{ $attempt->exam->display_title }} — Results</h1><span class="badge bg-{{ $attempt->status === 'submitted' ? 'success' : 'secondary' }}">{{ $attempt->status === 'submitted' ? 'Submitted' : 'Time expired' }}</span></div>
             <a class="btn btn-outline-light" href="{{ route('student.exams.index') }}">All Exams</a>
         </div>
 
         <div class="row g-3 mb-4">
             <div class="col-md-4"><div class="sk-tile rounded-3 p-3 h-100" style="background:rgba(255,255,255,.05)"><div class="text-white-50">Score</div><div class="fs-3 fw-bold">{{ number_format((float) $attempt->score_percent, 2) }}%</div></div></div>
-            <div class="col-md-4"><div class="sk-tile rounded-3 p-3 h-100" style="background:rgba(255,255,255,.05)"><div class="text-white-50">Correct answers</div><div class="fs-3 fw-bold">{{ $attempt->correct_count }}/25</div></div></div>
+            <div class="col-md-4"><div class="sk-tile rounded-3 p-3 h-100" style="background:rgba(255,255,255,.05)"><div class="text-white-50">Correct answers</div><div class="fs-3 fw-bold">{{ $attempt->correct_count }}/{{ $attempt->questions->count() }}</div></div></div>
             <div class="col-md-4"><div class="sk-tile rounded-3 p-3 h-100" style="background:rgba(255,255,255,.05)"><div class="text-white-50">Result</div><div class="fs-3 fw-bold text-{{ $attempt->passed ? 'success' : 'danger' }}">{{ $attempt->passed ? 'PASS' : 'NOT PASSED' }}</div><div class="small text-white-50">Pass mark: 60%</div></div></div>
         </div>
         <p class="text-white-50">Submitted {{ $attempt->submitted_at?->format('M j, Y g:i A') }}</p>

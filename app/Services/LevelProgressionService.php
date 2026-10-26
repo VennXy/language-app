@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Exam;
+use App\Models\ExamAttempt;
 use App\Models\Level;
 use App\Models\Lesson;
 use App\Models\User;
@@ -34,7 +36,7 @@ class LevelProgressionService
 
             $accessibleIds[] = (int) $level->id;
 
-            if ($index < $levels->count() - 1 && !$this->levelHasAllLessonsCompleted($user->id, $level)) {
+            if ($index < $levels->count() - 1 && !$this->isLevelCompleted($user, $level)) {
                 break;
             }
         }
@@ -164,48 +166,15 @@ class LevelProgressionService
             }
 
             $level = Level::findOrFail($lesson->level_id);
-            $levelCompleted = $this->levelHasAllLessonsCompleted($user->id, $level);
 
-            $nextLevel = null;
+            // Mark the level completed (and unlock the next level) only when the
+            // learner satisfies the full completion rule — Training AND exams.
+            // Delegated to syncLevelCompletion() so the lesson path and the exam
+            // pass path share one implementation of the progression logic.
+            $sync = $this->syncLevelCompletion($user, $level);
 
-            if ($levelCompleted) {
-                DB::table('user_levels')
-                    ->where('user_id', $user->id)
-                    ->where('level_id', $level->id)
-                    ->update(['status' => 'completed', 'updated_at' => $now]);
-
-                $levelIndex = array_search($level->level, self::LEVEL_ORDER, true);
-                $nextCode = $levelIndex === false ? null : (self::LEVEL_ORDER[$levelIndex + 1] ?? null);
-
-                if ($nextCode !== null) {
-                    $nextLevel = Level::where('level', $nextCode)->first();
-
-                    if ($nextLevel) {
-                        $nextAccess = DB::table('user_levels')
-                            ->where('user_id', $user->id)
-                            ->where('level_id', $nextLevel->id)
-                            ->first();
-
-                        if ($nextAccess) {
-                            if ($nextAccess->status !== 'completed') {
-                                DB::table('user_levels')
-                                    ->where('id', $nextAccess->id)
-                                    ->update(['status' => 'active', 'updated_at' => $now]);
-                            }
-                        } else {
-                            DB::table('user_levels')->insert([
-                                'user_id' => $user->id,
-                                'level_id' => $nextLevel->id,
-                                'status' => 'active',
-                                'score' => 0,
-                                'certificate_issued' => false,
-                                'created_at' => $now,
-                                'updated_at' => $now,
-                            ]);
-                        }
-                    }
-                }
-            }
+            $levelCompleted = $sync['level_completed'];
+            $nextLevel = $sync['next_level'];
 
             return [
                 'completed' => true,
@@ -218,6 +187,126 @@ class LevelProgressionService
                 'next_level_unlocked' => $nextLevel?->level,
             ];
         });
+    }
+
+    /**
+     * Persist the authoritative level-completion outcome: a level is marked
+     * 'completed' (and its next level activated) only once the learner satisfies
+     * isLevelCompleted() — all required Training AND all required exams passed.
+     * Returns the outcome so callers (e.g. completeLesson) can surface it.
+     *
+     * @return array{level_completed: bool, next_level: Level|null}
+     */
+    public function syncLevelCompletion(User $user, Level $level): array
+    {
+        return DB::transaction(function () use ($user, $level): array {
+            $levelCompleted = $this->levelHasAllLessonsCompleted($user->id, $level)
+                && $this->levelExamsPassed($user, $level);
+
+            $nextLevel = null;
+
+            if ($levelCompleted) {
+                $now = now();
+
+                DB::table('user_levels')
+                    ->where('user_id', $user->id)
+                    ->where('level_id', $level->id)
+                    ->update(['status' => 'completed', 'updated_at' => $now]);
+
+                $nextLevel = $this->nextLevel($level);
+
+                if ($nextLevel) {
+                    $nextAccess = DB::table('user_levels')
+                        ->where('user_id', $user->id)
+                        ->where('level_id', $nextLevel->id)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if ($nextAccess) {
+                        if ($nextAccess->status !== 'completed') {
+                            DB::table('user_levels')
+                                ->where('id', $nextAccess->id)
+                                ->update(['status' => 'active', 'updated_at' => $now]);
+                        }
+                    } else {
+                        DB::table('user_levels')->insert([
+                            'user_id' => $user->id,
+                            'level_id' => $nextLevel->id,
+                            'status' => 'active',
+                            'score' => 0,
+                            'certificate_issued' => false,
+                            'created_at' => $now,
+                            'updated_at' => $now,
+                        ]);
+                    }
+                }
+            }
+
+            return ['level_completed' => $levelCompleted, 'next_level' => $nextLevel];
+        });
+    }
+
+    /**
+     * The authoritative "is this level fully finished?" rule used to decide both
+     * whether a level shows as Completed and whether the NEXT level unlocks.
+     *
+     * A level is complete only when ALL of its required Training (lessons) is
+     * complete AND every published exam for the level has a passed attempt.
+     * A level with no published exams completes on Training alone (spec §6); a
+     * level with exams can never be completed by Training alone.
+     */
+    public function isLevelCompleted(User $user, Level $level): bool
+    {
+        return $this->levelHasAllLessonsCompleted($user->id, $level)
+            && $this->levelExamsPassed($user, $level);
+    }
+
+    /**
+     * Whether every published exam belonging to the level has a passed attempt
+     * for the learner. A level with no published exams passes vacuously, so
+     * Training-only levels complete exactly as they did before exams gated
+     * completion.
+     */
+    public function levelExamsPassed(User $user, Level $level): bool
+    {
+        $publishedExamIds = Exam::query()
+            ->where('level_id', $level->id)
+            ->where('status', 'published')
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
+        if ($publishedExamIds === []) {
+            return true;
+        }
+
+        $passedExamIds = ExamAttempt::query()
+            ->where('user_id', $user->id)
+            ->where('passed', true)
+            ->whereIn('exam_id', $publishedExamIds)
+            ->pluck('exam_id')
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->all();
+
+        return count(array_diff($publishedExamIds, $passedExamIds)) === 0;
+    }
+
+    /**
+     * The next level in curriculum order after the given level, or null for the
+     * last level (C2).
+     */
+    private function nextLevel(Level $level): ?Level
+    {
+        $levelIndex = array_search($level->level, self::LEVEL_ORDER, true);
+
+        if ($levelIndex === false) {
+            return null;
+        }
+
+        $nextCode = self::LEVEL_ORDER[$levelIndex + 1] ?? null;
+
+        return $nextCode !== null ? Level::where('level', $nextCode)->first() : null;
     }
 
     public function recordLessonProgress(User $user, Lesson $lesson, int $percentage): void
@@ -308,5 +397,25 @@ class LevelProgressionService
                 ->whereIn('lesson_id', $lessonIds)
                 ->distinct('lesson_id')
                 ->count('lesson_id') === $lessonIds->count();
+    }
+
+    /**
+     * Whether a learner has completed the required Training for a level, which
+     * is the gate that unlocks that level's Exams.
+     *
+     * This reuses the established definition of level completion
+     * (levelHasAllLessonsCompleted) rather than inventing a parallel system. A
+     * level that defines no lessons at all is treated as complete so that a
+     * level without authored Training content never permanently blocks Exams.
+     */
+    public function isLevelTrainingComplete(User $user, Level $level): bool
+    {
+        $lessonCount = Lesson::where('level_id', $level->id)->count();
+
+        if ($lessonCount === 0) {
+            return true;
+        }
+
+        return $this->levelHasAllLessonsCompleted($user->id, $level);
     }
 }

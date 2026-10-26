@@ -49,8 +49,51 @@ class SuperAdminExamManagementTest extends TestCase
         $this->assertDatabaseMissing('exams', ['created_by' => $otherUser->id]);
     }
 
-    public function test_exam_cannot_be_published_with_fewer_than_25_approved_questions(): void
+    public function test_exam_cannot_be_published_with_zero_approved_questions(): void
     {
+        $superAdmin = User::factory()->create(['role' => 'super_admin']);
+        $owner = User::factory()->create(['role' => 'admin']);
+        $exam = Exam::create([
+            'title' => 'A1 Checkpoint',
+            'duration_minutes' => 30,
+            'status' => 'draft',
+            'created_by' => $superAdmin->id,
+        ]);
+        $this->createApprovedQuestions($exam, $owner, 0);
+
+        $this->actingAs($superAdmin)
+            ->post(route('super.admin.exams.publish', $exam))
+            ->assertSessionHasErrors('status');
+
+        $this->assertDatabaseHas('exams', ['id' => $exam->id, 'status' => 'draft']);
+    }
+
+    public function test_exam_can_be_published_with_fewer_than_25_approved_questions_in_testing_mode(): void
+    {
+        config()->set('gamification.exam_testing_mode', true);
+        config()->set('gamification.exam_minimum_approved_questions', 1);
+
+        $superAdmin = User::factory()->create(['role' => 'super_admin']);
+        $owner = User::factory()->create(['role' => 'admin']);
+        $exam = Exam::create([
+            'title' => 'A1 Checkpoint',
+            'duration_minutes' => 30,
+            'status' => 'draft',
+            'created_by' => $superAdmin->id,
+        ]);
+        $this->createApprovedQuestions($exam, $owner, 3);
+
+        $this->actingAs($superAdmin)
+            ->post(route('super.admin.exams.publish', $exam))
+            ->assertRedirect(route('super.admin.exams.index'));
+
+        $this->assertDatabaseHas('exams', ['id' => $exam->id, 'status' => 'published']);
+    }
+
+    public function test_production_mode_still_requires_25_approved_questions(): void
+    {
+        config()->set('gamification.exam_testing_mode', false);
+
         $superAdmin = User::factory()->create(['role' => 'super_admin']);
         $owner = User::factory()->create(['role' => 'admin']);
         $exam = Exam::create([
@@ -114,7 +157,7 @@ class SuperAdminExamManagementTest extends TestCase
 
     private function createApprovedQuestions(Exam $exam, User $owner, int $count): void
     {
-        foreach (range(1, $count) as $number) {
+        for ($number = 1; $number <= $count; $number++) {
             ExamQuestion::create([
                 'exam_id' => $exam->id,
                 'admin_id' => $owner->id,

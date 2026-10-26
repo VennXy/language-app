@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SukuraLearn. - Japanese Learning App</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <!-- Cropper.js CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+    <!-- Cropper.js JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0d061a;
+            color: #ffffff;
+        }
+        
+        /* Navbar Styling */
+        .navbar {
+            background: rgba(13, 6, 26, 0.85) !important;
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            z-index: 1000;
+        }
+
+        /* Glowing Pill Active Tab Styling */
+        .navbar .nav-link.active {
+            background: rgba(147, 51, 234, 0.2) !important;
+            border: 1px solid rgba(192, 132, 252, 0.4);
+            color: #f472b6 !important;
+            box-shadow: 0 0 15px rgba(147, 51, 234, 0.3);
+            font-weight: 600;
+        }
+
+        .navbar .nav-link:hover {
+            color: #ffffff !important;
+            background: rgba(192, 132, 252, 0.12);
+            border-radius: 50rem;
+        }
+
+        /* Utilities */
+        .gradient-text {
+            background: linear-gradient(135deg, #c084fc, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        @keyframes borderGlow {
+            0% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.3), inset 0 0 5px rgba(59, 130, 246, 0.1); }
+            50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.8), inset 0 0 10px rgba(59, 130, 246, 0.3); }
+            100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.3), inset 0 0 5px rgba(59, 130, 246, 0.1); }
+        }
+
+        @keyframes registerBorderGlow {
+            0% { box-shadow: 0 0 5px rgba(219, 39, 119, 0.3), inset 0 0 5px rgba(219, 39, 119, 0.1); }
+            50% { box-shadow: 0 0 20px rgba(219, 39, 119, 0.8), inset 0 0 10px rgba(219, 39, 119, 0.3); }
+            100% { box-shadow: 0 0 5px rgba(219, 39, 119, 0.3), inset 0 0 5px rgba(219, 39, 119, 0.1); }
+        }
+
+        /* Shared Glass Button Base Style */
+        .liquid-btn-glass {
+            position: relative;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            padding: 8px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            border-radius: 50rem;
+            overflow: hidden;
+            z-index: 1;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(8px);
+            transition: all 0.4s ease;
+        }
+
+        .liquid-btn-glass .btn-text {
+            position: relative;
+            z-index: 2;
+            color: #ffffff;
+        }
+
+        .liquid-btn-glass .liquid-fill {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            transition: top 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+
+        /* Login Button */
+        .btn-login-glass {
+            border: 1px solid rgba(59, 130, 246, 0.6);
+            animation: borderGlow 3s infinite ease-in-out;
+        }
+        .btn-login-glass .liquid-fill {
+            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+        }
+        .btn-login-glass:hover {
+            border-color: rgba(59, 130, 246, 1);
+            transform: translateY(-1px);
+        }
+        .btn-login-glass:hover .liquid-fill {
+            top: 0;
+        }
+
+        /* Register Button */
+        .btn-register-glass {
+            border: 1px solid rgba(219, 39, 119, 0.6);
+            animation: registerBorderGlow 3s infinite ease-in-out;
+        }  
+        .btn-register-glass .liquid-fill {
+            background: linear-gradient(135deg, #9333ea, #db2777);
+        }
+        .btn-register-glass:hover {
+            border-color: rgba(219, 39, 119, 1);
+            transform: translateY(-1px);
+        }
+        .btn-register-glass:hover .liquid-fill {
+            top: 0;
+        }
+
+        /* Glassmorphism Dropdown Menu Styling */
+        .dropdown-menu-glass {
+            background: rgba(13, 6, 26, 0.75) !important; 
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(192, 132, 252, 0.2) !important; 
+            border-radius: 12px !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37) !important;
+            padding: 8px !important;
+        }
+
+        .dropdown-menu-glass .dropdown-item {
+            color: #e2e8f0 !important;
+            border-radius: 8px;
+            padding: 8px 12px;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-menu-glass .dropdown-item:hover {
+            background: rgba(147, 51, 234, 0.2) !important; 
+            color: #ffffff !important;
+            transform: translateX(4px);
+        }
+
+        .dropdown-menu-glass .dropdown-item.text-danger:hover {
+            background: rgba(239, 68, 68, 0.2) !important;
+            color: #f87171 !important;
+        }
+
+        .dropdown-menu-glass .dropdown-divider {
+            border-color: rgba(255, 255, 255, 0.1) !important;
+        }  
+
+        .student-currencies {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+
+        .currency-display,
+        .heart-status-trigger {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .currency-icon {
+            font-size: 1.25rem;
+            line-height: 1;
+        }
+
+        .heart-status {
+            position: relative;
+        }
+
+        .heart-status-trigger {
+            padding: 0;
+            border: 0;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .heart-popover {
+            position: absolute;
+            z-index: 1100;
+            top: calc(100% + 0.55rem);
+            right: 0;
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-5px);
+            width: min(270px, calc(100vw - 1rem));
+            padding: 0.75rem;
+            color: #fff;
+            background: rgba(18, 17, 29, 0.98);
+            border: 1px solid rgba(255, 255, 255, 0.13);
+            border-radius: 0.8rem;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42), 0 0 16px rgba(251, 191, 36, 0.08);
+            transition: opacity 150ms ease, transform 150ms ease, visibility 150ms ease;
+        }
+
+        .heart-status:hover .heart-popover,
+        .heart-status:focus-within .heart-popover {
+            visibility: visible;
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .daily-streak-status { position: relative; }
+        .daily-streak-trigger { padding: 0; border: 0; background: transparent; cursor: pointer; }
+        .daily-streak-trigger.is-milestone {
+            color: #fcd34d;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.45);
+        }
+        .daily-streak-popover {
+            position: absolute;
+            z-index: 1100;
+            top: calc(100% + 0.55rem);
+            right: 0;
+            width: min(230px, calc(100vw - 1rem));
+            padding: 0.7rem 0.75rem;
+            color: #fff;
+            background: rgba(18, 17, 29, 0.98);
+            border: 1px solid rgba(255, 255, 255, 0.13);
+            border-radius: 0.8rem;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42);
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-5px);
+            transition: opacity 150ms ease, transform 150ms ease, visibility 150ms ease;
+        }
+        .daily-streak-status:hover .daily-streak-popover,
+        .daily-streak-status:focus-within .daily-streak-popover {
+            visibility: visible;
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+        .daily-streak-title { color: rgba(255,255,255,.65); font-size: .68rem; }
+        .daily-streak-value { margin-top: .12rem; font-weight: 750; }
+        .daily-streak-message { margin-top: .4rem; color: rgba(255,255,255,.68); font-size: .7rem; }
+        .daily-streak-today { margin-top: .45rem; font-size: .68rem; }
+        .daily-streak-today.is-done { color: #86efac; }
+        .daily-streak-today.is-pending { color: #fcd34d; }
+
+        .heart-popover-top,
+        .heart-popover-gems {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .heart-slots {
+            display: flex;
+            align-items: center;
+            gap: 0.08rem;
+            min-width: 0;
+        }
+
+        .heart-slot {
+            font-size: 1rem;
+            line-height: 1;
+        }
+
+        .heart-slot.is-empty {
+            color: rgba(255, 255, 255, 0.38);
+        }
+
+        .heart-popover-count {
+            margin-left: 0.45rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .heart-countdown {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            margin-top: 0.65rem;
+        }
+
+        .heart-countdown-time {
+            font-size: 1.15rem;
+            font-variant-numeric: tabular-nums;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+
+        .heart-countdown-label {
+            color: rgba(255, 255, 255, 0.62);
+            font-size: 0.68rem;
+            line-height: 1.1;
+        }
+
+        .heart-progress-track {
+            height: 4px;
+            margin: 0.55rem 0 0.65rem;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 999px;
+        }
+
+        .heart-progress-fill {
+            display: block;
+            height: 100%;
+            background: linear-gradient(90deg, #fb7185, #fbbf24);
+            border-radius: inherit;
+            transition: width 250ms linear;
+        }
+
+        .heart-full-state {
+            margin-top: 0.55rem;
+            color: #fda4af;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .heart-full-state[hidden],
+        #heart-countdown-section[hidden] { display: none !important; }
+
+        .heart-popover-gems {
+            padding-top: 0.45rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.82rem;
+        }
+
+        .gem-refill-action {
+            width: 100%;
+            margin-top: 0.55rem;
+            padding: 0.4rem 0.55rem;
+            color: #fef3c7;
+            background: rgba(255, 255, 255, 0.035);
+            border: 1px solid rgba(251, 191, 36, 0.32);
+            border-radius: 0.55rem;
+            font-size: 0.76rem;
+            font-weight: 650;
+            transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
+        }
+
+        .gem-refill-action:not(:disabled):hover {
+            background: rgba(251, 191, 36, 0.1);
+            border-color: rgba(251, 191, 36, 0.65);
+            transform: translateY(-1px);
+        }
+
+        .gem-refill-action:disabled {
+            color: rgba(255, 255, 255, 0.48);
+            border-color: rgba(255, 255, 255, 0.12);
+            cursor: not-allowed;
+        }
+
+        .heart-popover-message {
+            margin-top: 0.35rem;
+            color: #fcd34d;
+            font-size: 0.68rem;
+            text-align: center;
+        }
+
+        .heart-clock {
+            display: inline-block;
+            margin-right: 0.25rem;
+            animation: heartClockTurn 5s linear infinite;
+        }
+
+        @keyframes heartClockTurn {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .heart-clock { animation: none; }
+        }
+
+        @media (max-width: 575.98px) {
+            .student-currencies { gap: 0.5rem; }
+            .heart-popover { right: 0; }
+        }
+    </style>
+            </head>
+<body>
+
+
+
+    <!-- Navbar Component -->  
+<header class="sticky-top w-full">
+    <nav class="navbar navbar-expand-lg navbar-dark py-3">
+        <div class="container max-w-7xl">
+            <!-- Brand / Logo -->
+            <a class="navbar-brand fw-extrabold fs-3 gradient-text" href="http://localhost:8080">SakuraLearn</a>
+            
+            <!-- Mobile Toggle Button (Hamburger) -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Navbar Collapse Wrapper -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <!-- Center Navigation Links (hidden on Login & Register pages) -->
+                <ul class="navbar-nav mx-auto my-2 my-lg-0 gap-1 align-items-lg-center">
+                                    </ul>
+
+                <!-- Right Side: Navbar (Login / Register / User Profile) -->
+                <div class="d-flex align-items-center justify-content-center gap-2 mt-3 mt-lg-0">
+                                            <!-- Login & Register Buttons for Guests -->
+                        <a href="http://localhost:8080/login" class="liquid-btn-glass btn-login-glass">
+                            <span class="btn-text">Login</span>
+                            <div class="liquid-fill"></div>
+                        </a>
+
+                        <a href="http://localhost:8080/register" class="liquid-btn-glass btn-register-glass">
+                            <span class="btn-text">Register</span>
+                            <div class="liquid-fill"></div>
+                        </a>
+                    
+                                    </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+
+
+    <!-- Main Dynamic Content -->
+    <main>
+        <div class="glass-auth-wrapper">
+    <!-- Pure CSS Blurred Radial Background Effects -->
+    <div class="bg-glow-1"></div>
+    <div class="bg-glow-2"></div>
+
+    <div class="glass-card-container">
+        <div class="glass-card">
+            
+            <!-- Brand & Heading -->
+            <div class="text-center mb-4">
+                <h2 class="brand-logo">SakuraLearn<span>.</span></h2>
+                <h4 class="auth-title">Welcome Back! 🌸</h4>
+                <p class="auth-subtitle">Sign in to continue your learning journey</p>
+            </div>
+
+            <form method="POST" action="http://localhost:8080/login">
+                <input type="hidden" name="_token" value="IILYumoZwMWzsSTakCzoPXZzZmvXuIxFQ2KS46xM" autocomplete="off">
+                <!-- Email Address -->
+                <div class="mb-3">
+                    <label for="email" class="form-label custom-label">Email Address</label>
+                    <div class="input-group custom-input-group">
+                        <span class="input-group-text custom-input-icon">
+                            <i class="bi bi-envelope"></i>
+                        </span>
+                        <input id="email" type="email" class="form-control custom-input " name="email" value="" required autocomplete="email" autofocus placeholder="name@example.com">
+                    </div>
+                                    </div>
+
+                <!-- Password -->
+                <div class="mb-3">
+                    <label for="password" class="form-label custom-label">Password</label>
+                    <div class="input-group custom-input-group">
+                        <span class="input-group-text custom-input-icon">
+                            <i class="bi bi-lock"></i>
+                        </span>
+                        <input id="password" type="password" class="form-control custom-input border-0 " name="password" required autocomplete="current-password" placeholder="••••••••">
+                        <button class="btn custom-toggle-btn" type="button" id="togglePassword">
+                            <i class="bi bi-eye" id="togglePasswordIcon"></i>
+                        </button>
+                    </div>
+                                    </div>
+
+                <!-- Remember Me & Forgot Password -->
+                <div class="mb-4 d-flex justify-content-between align-items-center">
+                    <div class="form-check custom-checkbox">
+                        <input class="form-check-input shadow-none" type="checkbox" name="remember" id="remember" >
+                        <label class="form-check-label text-light small" for="remember">
+                            Remember Me
+                        </label>
+                    </div>
+                                            <a class="text-decoration-none small custom-link" href="http://localhost:8080/password/reset">
+                            Forgot Password?
+                        </a>
+                                    </div>
+
+                <!-- Submit Button -->
+                <div class="d-grid mb-3">
+                    <button type="submit" class="btn custom-gradient-btn">
+                        Log In →
+                    </button>
+                </div>
+
+                <!-- Register Link -->
+                <div class="text-center mt-3">
+                    <p class="text-muted small mb-0">Don't have an account? <a href="http://localhost:8080/register" class="text-decoration-none custom-link fw-semibold">Sign up</a></p>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .glass-auth-wrapper {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0B0618 0%, #21123B 100%);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px 16px;
+    }
+    .bg-glow-1 {
+        position: absolute;
+        width: 450px;
+        height: 450px;
+        background: rgba(139, 92, 246, 0.18);
+        filter: blur(80px);
+        top: 10%;
+        left: 15%;
+        border-radius: 50%;
+        pointer-events: none;
+    }
+    .bg-glow-2 {
+        position: absolute;
+        width: 400px;
+        height: 400px;
+        background: rgba(232, 121, 249, 0.12);
+        filter: blur(90px);
+        bottom: 10%;
+        right: 15%;
+        border-radius: 50%;
+        pointer-events: none;
+    }
+    .glass-card-container {
+        width: 100%;
+        max-width: 460px;
+        position: relative;
+        z-index: 2;
+    }
+    .glass-card {
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+    .brand-logo {
+        font-size: 34px;
+        font-weight: 800;
+        color: #ffffff;
+        letter-spacing: -1px;
+        margin-bottom: 6px;
+    }
+    .brand-logo span {
+        color: #E879F9;
+    }
+    .auth-title {
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 20px;
+        margin-bottom: 6px;
+    }
+    .auth-subtitle {
+        color: #c4b5fd;
+        font-size: 13px;
+        margin-bottom: 0;
+    }
+    .custom-label {
+        color: #e2e8f0;
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 6px;
+    }
+    .custom-input-group {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    .custom-input-group:focus-within {
+        border-color: #8B5CF6;
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+    }
+    .custom-input-icon {
+        background: transparent;
+        border: none;
+        color: #94a3b8;
+        padding-left: 16px;
+    }
+    .custom-input {
+        background: transparent !important;
+        border: none !important;
+        color: #ffffff !important;
+        height: 48px;
+        font-size: 14px;
+        box-shadow: none !important;
+    }
+    .custom-input::placeholder {
+        color: #64748b;
+    }
+    .custom-toggle-btn {
+        background: transparent;
+        border: none;
+        color: #94a3b8;
+        padding-right: 16px;
+        box-shadow: none !important;
+    }
+    .custom-checkbox .form-check-input {
+        background-color: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.2);
+        cursor: pointer;
+    }
+    .custom-checkbox .form-check-input:checked {
+        background-color: #8B5CF6;
+        border-color: #8B5CF6;
+    }
+    .custom-link {
+        color: #E879F9;
+        transition: color 0.2s;
+    }
+    .custom-link:hover {
+        color: #f472b6;
+        text-decoration: underline !important;
+    }
+    .custom-gradient-btn {
+        background: linear-gradient(135deg, #8B5CF6 0%, #E879F9 100%);
+        border: none;
+        border-radius: 999px;
+        height: 50px;
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 15px;
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        transition: opacity 0.2s, transform 0.2s;
+    }
+    .custom-gradient-btn:hover {
+        opacity: 0.92;
+        transform: translateY(-1px);
+        color: #ffffff;
+    }
+    @media (max-width: 576px) {
+        .glass-card {
+            padding: 24px;
+        }
+    }
+</style>
+
+<script>
+    document.getElementById('togglePassword').addEventListener('click', function () {
+        const passwordInput = document.getElementById('password');
+        const icon = document.getElementById('togglePasswordIcon');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    });
+</script>
+    </main>
+
+
+    <!-- Footer Component -->
+    <footer class="pt-5 pb-4 border-top border-opacity-10" style="border-color: rgba(255, 255, 255, 0.08) !important;">
+        <div class="container">
+            <div class="row g-4 pb-4">
+                <div class="col-12 col-md-5">
+                    <a href="http://localhost:8080" class="fw-bold fs-4 gradient-text text-decoration-none">SukuraLearn.</a>
+                    <p class="text-muted small mt-2 mb-0">Learn Japanese step by step, from your first words to advanced fluency.</p>
+                    <p class="text-muted small mt-2 mb-0">一歩ずつ、日本語を学びましょう。</p>
+                </div>
+                <div class="col-6 col-md-3">
+                    <h6 class="text-white fw-bold mb-3">Learning</h6>
+                                            <a href="http://localhost:8080/login" class="d-block text-muted text-decoration-none small mb-2">Sign in to learn</a>
+                                    </div>
+                <div class="col-6 col-md-4">
+                    <h6 class="text-white fw-bold mb-3">Account</h6>
+                                            <a href="http://localhost:8080/login" class="d-block text-muted text-decoration-none small mb-2">Login</a>
+                        <a href="http://localhost:8080/register" class="d-block text-muted text-decoration-none small mb-2">Register</a>
+                                    </div>
+            </div>
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 border-top border-secondary border-opacity-25 pt-3">
+                <small class="text-muted">&copy; 2026 SukuraLearn. All rights reserved.</small>
+                <small class="text-muted">Made for Japanese learners.</small>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Navbar Active Link Switching
+        const navLinks = document.querySelectorAll('.navbar .nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                navLinks.forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+            }); 
+        });
+    </script>
+            </body>
+</html>
+

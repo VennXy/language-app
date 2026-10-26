@@ -32,6 +32,7 @@ class StudentExamWorkflowTest extends TestCase
     {
         $student = $this->user('student');
         $published = $this->exam('published', 'Published JLPT Exam');
+        $this->createQuestions($published, ['approved' => 25]);
         $this->exam('draft', 'Draft JLPT Exam');
         $this->exam('closed', 'Closed JLPT Exam');
 
@@ -68,11 +69,11 @@ class StudentExamWorkflowTest extends TestCase
         }
     }
 
-    public function test_student_cannot_start_published_exam_with_fewer_than_25_approved_questions(): void
+    public function test_student_cannot_start_published_exam_with_zero_approved_questions(): void
     {
         $student = $this->user('student');
         $exam = $this->exam('published');
-        $this->createQuestions($exam, ['approved' => 24, 'pending' => 2, 'draft' => 2, 'rejected' => 2]);
+        $this->createQuestions($exam, ['approved' => 0, 'pending' => 2, 'draft' => 2, 'rejected' => 2]);
 
         $this->actingAs($student)
             ->post(route('student.exams.start', $exam))
@@ -82,7 +83,27 @@ class StudentExamWorkflowTest extends TestCase
         $this->assertSame(0, ExamAttemptQuestion::query()->count());
     }
 
-    public function test_start_creates_attempt_and_exactly_25_approved_question_snapshots(): void
+    public function test_student_can_start_with_fewer_than_25_approved_questions_in_testing_mode(): void
+    {
+        config()->set('gamification.exam_testing_mode', true);
+        config()->set('gamification.exam_minimum_approved_questions', 1);
+
+        $student = $this->user('student');
+        $exam = $this->exam('published');
+        $this->createQuestions($exam, ['approved' => 5, 'pending' => 2, 'draft' => 2, 'rejected' => 2]);
+
+        $this->actingAs($student)
+            ->post(route('student.exams.start', $exam))
+            ->assertRedirect();
+
+        $attempt = ExamAttempt::query()->where('exam_id', $exam->id)->where('user_id', $student->id)->first();
+        $this->assertNotNull($attempt);
+        // Testing mode allows starting with fewer than the production 25;
+        // the attempt snapshots up to the per-attempt target (3) of the 5 approved.
+        $this->assertSame(3, ExamAttemptQuestion::query()->where('exam_attempt_id', $attempt->id)->count());
+    }
+
+    public function test_start_creates_attempt_and_exactly_three_question_snapshots(): void
     {
         $student = $this->user('student');
         $otherUser = $this->user('student');
@@ -107,8 +128,8 @@ class StudentExamWorkflowTest extends TestCase
         $this->assertTrue($startedAt->copy()->addMinutes(45)->equalTo($attempt->expires_at));
 
         $snapshots = $attempt->questions()->orderBy('question_order')->get();
-        $this->assertCount(25, $snapshots);
-        $this->assertSame(range(1, 25), $snapshots->pluck('question_order')->all());
+        $this->assertCount(3, $snapshots);
+        $this->assertSame(range(1, 3), $snapshots->pluck('question_order')->all());
 
         $sourceQuestions = ExamQuestion::query()->whereIn('id', $snapshots->pluck('exam_question_id'))->get()->keyBy('id');
         foreach ($snapshots as $snapshot) {
@@ -158,19 +179,37 @@ class StudentExamWorkflowTest extends TestCase
             ->assertRedirect(route('student.exams.attempts.show', $attempt));
 
         $this->assertSame(1, ExamAttempt::query()->count());
-        $this->assertSame(25, ExamAttemptQuestion::query()->where('exam_attempt_id', $attempt->id)->count());
+        $this->assertSame(3, ExamAttemptQuestion::query()->where('exam_attempt_id', $attempt->id)->count());
     }
 
-    public function test_submitted_or_expired_attempt_cannot_be_retaken(): void
+    public function test_submitted_or_expired_attempt_can_be_retaken_with_a_new_attempt(): void
     {
         $student = $this->user('student');
         foreach (['submitted', 'expired'] as $status) {
             $exam = $this->exam('published', ucfirst($status).' Exam');
-            $attempt = $this->attempt($exam, $student, $status);
+            $this->createQuestions($exam, ['approved' => 25]);
+            $this->attempt($exam, $student, $status);
+
             $this->actingAs($student)->post(route('student.exams.start', $exam))
-                ->assertRedirect(route('student.exams.attempts.show', $attempt));
-            $this->assertSame(1, ExamAttempt::query()->where('exam_id', $exam->id)->where('user_id', $student->id)->count());
+                ->assertRedirect();
+
+            // Repeat attempts are allowed: a finished attempt yields a brand-new one.
+            $this->assertSame(2, ExamAttempt::query()->where('exam_id', $exam->id)->where('user_id', $student->id)->count());
         }
+    }
+
+    public function test_active_in_progress_attempt_is_reused_not_duplicated(): void
+    {
+        $student = $this->user('student');
+        $exam = $this->exam('published');
+        $this->createQuestions($exam, ['approved' => 25]);
+        $active = $this->attempt($exam, $student, 'in_progress');
+
+        $this->actingAs($student)->post(route('student.exams.start', $exam))
+            ->assertRedirect(route('student.exams.attempts.show', $active));
+
+        // The active attempt is reused; no duplicate is created.
+        $this->assertSame(1, ExamAttempt::query()->where('exam_id', $exam->id)->where('user_id', $student->id)->count());
     }
 
     public function test_student_can_access_only_their_own_attempt_page(): void
@@ -187,6 +226,7 @@ class StudentExamWorkflowTest extends TestCase
     {
         $student = $this->user('student');
         $exam = $this->exam('published');
+        $this->createQuestions($exam, ['approved' => 25]);
         $attempt = $this->attempt($exam, $student, 'submitted');
 
         $this->actingAs($student)
@@ -217,7 +257,8 @@ class StudentExamWorkflowTest extends TestCase
     {
         $number = 1;
         foreach ($statuses as $status => $count) {
-            foreach (range(1, $count) as $_) {
+            // Guard: range(1, 0) returns [1, 0] in PHP, so a zero count must be skipped explicitly.
+            for ($i = 0; $i < $count; $i++) {
                 ExamQuestion::create([
                     'exam_id' => $exam->id,
                     'admin_id' => $this->user('admin')->id,

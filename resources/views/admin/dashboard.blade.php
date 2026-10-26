@@ -2,57 +2,32 @@
 
 @section('admin_content')
 <style>
-    /* Modern Glass Button Base */
-    .btn-modern-glass {
-        background: rgba(255, 255, 255, 0.07);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        color: #ffffff;
-        backdrop-filter: blur(10px);
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .btn-modern-glass:hover {
-        background: rgba(255, 255, 255, 0.15);
-        border-color: rgba(192, 132, 252, 0.5);
-        color: #ffffff;
-        box-shadow: 0 0 15px rgba(192, 132, 252, 0.4);
-        transform: translateY(-2px);
-    }
-
-    /* Modern Primary / Purple Glow Button */
-    .btn-modern-purple {
-        background: linear-gradient(135deg, #c084fc 0%, #9333ea 100%);
-        border: 1px solid rgba(192, 132, 252, 0.4);
-        color: #ffffff;
-        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
-        transition: all 0.3s ease;
-    }
-    .btn-modern-purple:hover {
-        background: linear-gradient(135deg, #d8b4fe 0%, #a855f7 100%);
-        box-shadow: 0 0 20px rgba(192, 132, 252, 0.6);
-        color: #ffffff;
-        transform: translateY(-2px);
-    }
-
-    /* Modern Danger / Delete Button */
-    .btn-modern-danger {
-        background: rgba(239, 68, 68, 0.15);
-        border: 1px solid rgba(239, 68, 68, 0.3);
-        color: #fca5a5;
-        transition: all 0.3s ease;
-    }
-    .btn-modern-danger:hover {
-        background: rgba(239, 68, 68, 0.3);
-        border-color: rgba(239, 68, 68, 0.6);
-        color: #ffffff;
-        box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
-        transform: translateY(-2px);
-    }
-    
+    /* Dashboard widgets (Sakura glass) */
+    .glass-widget{background:rgba(255,255,255,0.03);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(192,132,252,0.15);border-radius:16px;box-shadow:0 15px 35px rgba(0,0,0,0.25);}
+    .kpi-value{font-size:2.1rem;font-weight:800;line-height:1.1;}
+    .chart-card{padding:1.25rem;}
+    .chart-header{display:flex;justify-content:space-between;align-items:center;}
+    .chart-label{font-size:12px;font-weight:700;letter-spacing:0.5px;color:#d8b4fe;text-transform:uppercase;}
+    .chart-sub{font-size:12px;color:#94a3b8;margin-top:2px;}
+    .canvas-box{position:relative;width:100%;min-height:260px;padding:8px;}
+    .canvas-box canvas{width:100% !important;height:auto !important;}
+    .activity-list{list-style:none;margin:0;padding:0;}
+    .activity-list li{padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+    .activity-list li:last-child{border-bottom:none;}
+    .badge-pending{background:rgba(253,230,138,0.25);color:#fbbf24;border:1px solid rgba(253,230,138,0.4);}
+    .badge-approved{background:rgba(110,231,183,0.2);color:#6EE7B7;border:1px solid rgba(110,231,183,0.35);}
+    .badge-rejected{background:rgba(248,113,113,0.18);color:#F87171;border:1px solid rgba(248,113,113,0.35);}
+    .badge-purple{background:rgba(192,132,252,0.2);color:#c084fc;border:1px solid rgba(192,132,252,0.3);}
+    .quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .action-btn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:16px;color:#fff;text-decoration:none;display:flex;align-items:center;gap:12px;font-weight:600;transition:all .25s;}
+    .action-btn:hover{background:rgba(192,132,252,0.15);border-color:rgba(192,132,252,0.4);transform:translateY(-2px);color:#fff;}
+    .btn-icon{font-size:1.5rem;}
+    .roadmap-lessons{list-style:none;margin:6px 0 0 18px;padding:0;}
+    .roadmap-lessons li{padding:3px 0;font-size:13px;color:#cbd5e1;}
 </style>
 
-<div class="container py-5">
-    @if($dashboardForAdmin ?? false)
+@if($dashboardForAdmin ?? false)
+    <!-- ADMIN BRANCH: Admin Dashboard (own exam question contributions) -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="text-white fw-bold">Admin Dashboard</h2>
@@ -65,180 +40,293 @@
         <div class="col-md-4"><div class="p-4 rounded-4 shadow-sm border border-purple-subtle" style="background: rgba(255, 255, 255, 0.03); border-color: rgba(192, 132, 252, 0.2) !important;"><span class="text-light small text-uppercase fw-semibold opacity-75">Draft Questions</span><h3 class="text-white fw-bold mt-1 mb-0">{{ $myDraftQuestionsCount }}</h3></div></div>
         <div class="col-md-4"><div class="p-4 rounded-4 shadow-sm border border-purple-subtle" style="background: rgba(255, 255, 255, 0.03); border-color: rgba(192, 132, 252, 0.2) !important;"><span class="text-light small text-uppercase fw-semibold opacity-75">Awaiting Review</span><h3 class="text-white fw-bold mt-1 mb-0">{{ $myPendingQuestionsCount }}</h3></div></div>
     </div>
-    @else
-    <!-- Header Section -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+@else
+    <!-- SUPER ADMIN BRANCH -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
         <div>
-            <h2 class="text-white fw-bold">Super Admin Dashboard</h2>
-            <p class="text-light opacity-75">Manage system administrators and monitor application users.</p>
+            <h2 class="text-white fw-bold mb-0">Super Admin Dashboard</h2>
+            <p class="text-light opacity-75 mb-0">System-wide KPIs, exam status, question review pipeline, and recent activity.</p>
         </div>
-        <!-- Button to trigger Add Admin Modal -->
-        <!-- <button type="button" class="btn btn-modern-purple px-4 py-2 rounded-pill fw-semibold shadow-sm" data-bs-toggle="modal" data-bs-target="#addAdminModal">
-            <i class="bi bi-person-plus-fill me-2"></i> Add New Admin
-        </button> -->
+        <a href="{{ route('super.admin.settings') }}" class="btn btn-modern-purple px-4 py-2 rounded-pill fw-semibold shadow-sm">
+            <i class="bi bi-gear-fill me-2"></i> System Settings
+        </a>
     </div>
 
-    <!-- Success Message Alert -->
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" style="background: rgba(34, 197, 94, 0.15); color: #4ade80; backdrop-filter: blur(10px);">
-            <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+    <!-- KPI Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-2 col-md-6">
+            <div class="glass-widget p-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <p class="text-light small text-uppercase mb-1">Total Users</p>
+                    <h3 class="kpi-value text-white mt-0">{{ $totalUsers }}</h3>
+                </div>
+                <div class="p-3 rounded-circle" style="background: rgba(99, 102, 241, 0.15); color: #6366f1;"><i class="bi bi-people-fill"></i></div>
+            </div>
         </div>
-    @endif
-
-    <!-- Validation Errors Alert -->
-    @if($errors->any())
-        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" style="background: rgba(239, 68, 68, 0.15); color: #f87171; backdrop-filter: blur(10px);">
-            <ul class="mb-0 ps-3">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="col-xl-2 col-md-6">
+            <div class="glass-widget p-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <p class="text-light small text-uppercase mb-1">Total Students</p>
+                    <h3 class="kpi-value text-white mt-0">{{ $totalStudents }}</h3>
+                </div>
+                <div class="p-3 rounded-circle" style="background: rgba(110, 231, 183, 0.15); color: #6EE7B7;"><i class="bi bi-person-check-fill"></i></div>
+            </div>
         </div>
-    @endif
+        <div class="col-xl-2 col-md-6">
+            <div class="glass-widget p-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <p class="text-light small text-uppercase mb-1">Total Admins</p>
+                    <h3 class="kpi-value text-white mt-0">{{ $admins->count() }}</h3>
+                </div>
+                <div class="p-3 rounded-circle" style="background: rgba(192, 132, 252, 0.15); color: #c084fc;"><i class="bi bi-shield-lock-fill"></i></div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-md-6">
+            <div class="glass-widget p-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <p class="text-light small text-uppercase mb-1">Total Lessons</p>
+                    <h3 class="kpi-value text-white mt-0">{{ $totalLessons }}</h3>
+                </div>
+                <div class="p-3 rounded-circle" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;"><i class="bi bi-book-fill"></i></div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-md-6">
+            <div class="glass-widget p-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <p class="text-light small text-uppercase mb-1">Total Vocabularies</p>
+                    <h3 class="kpi-value text-white mt-0">{{ $totalVocabularies }}</h3>
+                </div>
+                <div class="p-3 rounded-circle" style="background: rgba(250, 204, 21, 0.15); color: #FCD34D;"><i class="bi bi-book-half"></i></div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-md-6">
+            <div class="glass-widget p-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <p class="text-light small text-uppercase mb-1">Total Exams</p>
+                    <h3 class="kpi-value text-white mt-0">{{ $totalExams }}</h3>
+                </div>
+                <div class="p-3 rounded-circle" style="background: rgba(239, 68, 68, 0.15); color: #F87171;"><i class="bi bi-clipboard-check-fill"></i></div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-md-6">
+            <div class="glass-widget p-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <p class="text-light small text-uppercase mb-1">Pending Reviews</p>
+                    <h3 class="kpi-value text-white mt-0">{{ $pendingReviews }}</h3>
+                </div>
+                <div class="p-3 rounded-circle" style="background: rgba(253, 230, 138, 0.18); color: #FBBF24;"><i class="bi bi-clock-history"></i></div>
+            </div>
+        </div>
+    </div>
 
-    <!-- Statistics Cards Row -->
-    <div class="row g-4 mb-5">
-        <div class="col-md-6">
-            <div class="p-4 rounded-4 shadow-sm border border-purple-subtle" style="background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(5px); border-color: rgba(192, 132, 252, 0.2) !important;">
-                <div class="d-flex align-items-center justify-content-between">
+    <!-- Charts -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-6 col-md-12">
+            <div class="glass-widget chart-card">
+                <div class="chart-header">
                     <div>
-                        <span class="text-light small text-uppercase fw-semibold opacity-75">Total Admins</span>
-                        <h3 class="text-white fw-bold mt-1 mb-0">{{ isset($admins)? count($admins):0 }}</h3>
+                        <p class="chart-label">Exam Registrations</p>
+                        <p class="chart-sub">New attempts per day (last 12 months)</p>
                     </div>
-                    <div class="p-3 rounded-circle text-purple" style="background: rgba(192, 132, 252, 0.1); color: #c084fc;">
-                        <i class="bi bi-shield-lock-fill fs-4"></i>
-                    </div>
+                </div>
+                <div class="canvas-box mt-3">
+                    <canvas id="registrationsChart"></canvas>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="p-4 rounded-4 shadow-sm border border-purple-subtle" style="background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(5px); border-color: rgba(192, 132, 252, 0.2) !important;">
-                <div class="d-flex align-items-center justify-content-between">
+        <div class="col-xl-6 col-md-12">
+            <div class="glass-widget chart-card">
+                <div class="chart-header">
                     <div>
-                        <span class="text-light small text-uppercase fw-semibold opacity-75">Total Users in System</span>
-                        <h3 class="text-white fw-bold mt-1 mb-0">{{ $totalUsers }}</h3>
-                    </div>
-                    <div class="p-3 rounded-circle text-info" style="background: rgba(56, 189, 248, 0.1); color: #38bdf8;">
-                        <i class="bi bi-people-fill fs-4"></i>
+                        <p class="chart-label">Exam Status</p>
+                        <p class="chart-sub">Published / draft / closed</p>
                     </div>
                 </div>
+                <div class="canvas-box mt-3">
+                    <canvas id="examStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6 col-md-12">
+            <div class="glass-widget chart-card">
+                <div class="chart-header">
+                    <div>
+                        <p class="chart-label">Question Review Status</p>
+                        <p class="chart-sub">Pending / approved / rejected</p>
+                    </div>
+                </div>
+                <div class="canvas-box mt-3">
+                    <canvas id="questionStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6 col-md-12">
+            <div class="glass-widget chart-card">
+                <div class="chart-header">
+                    <div>
+                        <p class="chart-label">Level Content Roadmap</p>
+                        <p class="chart-sub">Lessons available per level</p>
+                    </div>
+                </div>
+                <ul class="activity-list">
+                    @forelse ($roadmap as $level)
+                        <li>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-white fw-semibold">{{ $level['name'] }}</span>
+                                <span class="text-light small">{{ $level['lesson_count'] }} lesson(s)</span>
+                            </div>
+                            @if (!empty($level['lessons']))
+                                <ul class="roadmap-lessons">
+                                    @foreach ($level['lessons'] as $lessonId => $lessonTitle)
+                                        <li>{{ $lessonTitle }}</li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                        </li>
+                    @empty
+                        <li><span class="text-light small">No levels defined yet.</span></li>
+                    @endforelse
+                </ul>
             </div>
         </div>
     </div>
 
-    
-</div>
-
-<!-- ========================================== -->
-<!-- VIEW MODALS -->
-<!-- ========================================== -->
-@foreach($admins as $admin)
-<div class="modal fade" id="viewAdminModal{{ $admin->id }}" tabindex="-1" aria-labelledby="viewAdminModalLabel{{ $admin->id }}" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content text-white border-0 shadow-lg rounded-4" style="background: rgba(25, 15, 45, 0.90); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(192, 132, 252, 0.3) !important;">
-            
-            <!-- Modal Header -->
-            <div class="modal-header border-bottom border-light border-opacity-10 px-4 py-3">
-                <h5 class="modal-title fw-bold" id="viewAdminModalLabel{{ $admin->id }}" style="color: #d8b4fe;">
-                    <i class="bi bi-person-badge-fill me-2"></i> Administrator Details
-                </h5>
-                <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+    <!-- Recent Activity -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-6 col-md-12">
+            <div class="glass-widget p-4">
+                <h5 class="text-white fw-bold mb-3">Recent Registrations</h5>
+                <ul class="activity-list">
+                    @forelse ($recentRegistrations as $reg)
+                        <li>
+                            <div class="d-flex flex-wrap justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-white fw-semibold small mb-0">{{ $reg['exam'] }}</p>
+                                    <p class="text-light small mb-0">{{ $reg['student'] }}</p>
+                                </div>
+                                <div class="text-end">
+                                    <span class="text-light small d-block">{{ $reg['date'] }}</span>
+                                    <span class="badge badge-purple">{{ $reg['score'] }}</span>
+                                </div>
+                            </div>
+                        </li>
+                    @empty
+                        <li><span class="text-light small">No registrations yet.</span></li>
+                    @endforelse
+                </ul>
             </div>
+        </div>
+        <div class="col-xl-6 col-md-12">
+            <div class="glass-widget p-4">
+                <h5 class="text-white fw-bold mb-3">Recent Question Activity</h5>
+                <ul class="activity-list">
+                    @forelse ($recentQuestionActivity as $item)
+                        <li>
+                            <div class="d-flex flex-wrap justify-content-between align-items-center">
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="badge badge-{{ $item['status'] }}">{{ ucfirst($item['status']) }}</span>
+                                    <div>
+                                        <p class="text-white fw-semibold small mb-0">{{ $item['title'] }}</p>
+                                        <p class="text-light small mb-0">Submitted by {{ $item['owner'] }} on {{ $item['submitted_at'] }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    @empty
+                        <li><span class="text-light small">No question activity yet.</span></li>
+                    @endforelse
+                </ul>
+            </div>
+        </div>
+    </div>
 
-            <!-- Modal Body -->
-            <div class="modal-body p-4">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
-                            <span class="d-block text-uppercase mb-1" style="font-size: 11px; letter-spacing: 0.5px; color: #d8b4fe; font-weight: 600;">Full Name</span>
-                            <span class="fs-6 fw-semibold text-white">{{ $admin->name }}</span>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
-                            <span class="d-block text-uppercase mb-1" style="font-size: 11px; letter-spacing: 0.5px; color: #d8b4fe; font-weight: 600;">Email Address</span>
-                            <span class="fs-6 fw-semibold text-white">{{ $admin->email }}</span>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
-                            <span class="d-block text-uppercase mb-1" style="font-size: 11px; letter-spacing: 0.5px; color: #d8b4fe; font-weight: 600;">Date of Birth</span>
-                            <span class="fs-6 fw-semibold text-white">{{ $admin->date_of_birth ?? 'N/A' }}</span>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
-                            <span class="d-block text-uppercase mb-1" style="font-size: 11px; letter-spacing: 0.5px; color: #d8b4fe; font-weight: 600;">System Role</span>
-                            <span class="fs-6 fw-semibold" style="color: #f3e8ff;">{{ ucfirst(str_replace('_', ' ', $admin->role)) }}</span>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
-                            <span class="d-block text-uppercase mb-1" style="font-size: 11px; letter-spacing: 0.5px; color: #d8b4fe; font-weight: 600;">Account Created</span>
-                            <span class="fs-6 fw-semibold text-white">{{ $admin->created_at ? $admin->created_at->format('Y-m-d H:i:s') : 'N/A' }}</span>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
-                            <span class="d-block text-uppercase mb-1" style="font-size: 11px; letter-spacing: 0.5px; color: #d8b4fe; font-weight: 600;">Last Updated</span>
-                            <span class="fs-6 fw-semibold text-white">{{ $admin->updated_at ? $admin->updated_at->format('Y-m-d H:i:s') : 'N/A' }}</span>
-                        </div>
-                    </div>
+    <!-- Quick Actions -->
+    <div class="row g-4">
+        <div class="col-xl-4 col-md-6">
+            <div class="glass-widget p-4">
+                <h5 class="text-white fw-bold mb-3">Quick Actions</h5>
+                <div class="quick-actions">
+                    <a href="{{ route('admin.exams.index') }}" class="action-btn">
+                        <i class="btn-icon bi bi-journal-check-fill"></i>
+                        <span>Review Exam Questions</span>
+                    </a>
+                    <a href="{{ route('super.admin.exams.index') }}" class="action-btn">
+                        <i class="btn-icon bi bi-clipboard-check-fill"></i>
+                        <span>Manage Exams</span>
+                    </a>
+                    <a href="{{ route('super.admin.exam.questions.exams') }}" class="action-btn">
+                        <i class="btn-icon bi bi-patch-question-fill"></i>
+                        <span>Question Review Queue</span>
+                    </a>
+                    <a href="{{ route('super.admin.lessons.index') }}" class="action-btn">
+                        <i class="btn-icon bi bi-journal-bookmark-fill"></i>
+                        <span>Manage Lessons</span>
+                    </a>
                 </div>
             </div>
-
-            <!-- Modal Footer -->
-            <div class="modal-footer border-top border-light border-opacity-10 px-4 py-3">
-                <button type="button" class="btn btn-outline-light rounded-pill px-4 shadow-sm" data-bs-dismiss="modal">Close</button>
-            </div>
-
         </div>
     </div>
 </div>
-@endforeach
 
-<!-- Add New Admin Modal -->
-<div class="modal fade" id="addAdminModal" tabindex="-1" aria-labelledby="addAdminModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 border-0 shadow-lg" style="background: #130b26; color: #fff; border: 1px solid rgba(192, 132, 252, 0.2) !important;">
-            <div class="modal-header border-bottom border-secondary border-opacity-25">
-                <h5 class="modal-title fw-bold text-white" id="addAdminModalLabel">Create New Administrator</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form action="{{ route('super.admin.admins.store') }}" method="POST">
-                @csrf
-                <div class="modal-body p-4">
-                    <div class="mb-3">
-                        <label for="name" class="form-label text-muted small">Admin Name</label>
-                        <input type="text" class="form-control bg-dark text-white border-secondary border-opacity-50 rounded-pill px-3 py-2" id="name" name="name" required placeholder="Enter full name">
-                    </div>
-                    <div class="mb-3">
-                        <label for="email" class="form-label text-muted small">Email Address</label>
-                        <input type="email" class="form-control bg-dark text-white border-secondary border-opacity-50 rounded-pill px-3 py-2" id="email" name="email" required placeholder="name@example.com">
-                    </div>
-                    <div class="mb-3">
-                        <label for="date_of_birth" class="form-label text-muted small">Date of Birth</label>
-                        <input type="date" class="form-control bg-dark text-white border-secondary border-opacity-50 rounded-pill px-3 py-2" id="date_of_birth" name="date_of_birth">
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label text-muted small">Password</label>
-                        <input type="password" class="form-control bg-dark text-white border-secondary border-opacity-50 rounded-pill px-3 py-2" id="password" name="password" required placeholder="Minimum 8 characters">
-                    </div>
-                </div>
-                <div class="modal-footer border-top border-secondary border-opacity-25 px-4 pb-4">
-                    <button type="button" class="btn btn-outline-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn rounded-pill px-4 text-dark fw-semibold" style="background: #c084fc;">Create Admin</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-    @endif
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    (function () {
+        if (typeof Chart === 'undefined') { return; }
+
+        var chartData = @json($chartData);
+
+        var initLineChart = function (canvasId, labels, data, color) {
+            var ctx = document.getElementById(canvasId);
+            if (!ctx) { return; }
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'New exam attempts',
+                        data: data,
+                        fill: true,
+                        tension: 0.35,
+                        backgroundColor: color + '22',
+                        borderColor: color,
+                        pointBackgroundColor: color,
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: 'rgba(255,255,255,0.07)' }, ticks: { color: '#94a3b8' } },
+                        y: { grid: { color: 'rgba(255,255,255,0.07)' }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+        };
+
+        var initDoughnut = function (canvasId, labels, series) {
+            var ctx = document.getElementById(canvasId);
+            if (!ctx) { return; }
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{ data: series, backgroundColor: ['#94a3b8', '#6EE7B7', '#F87171'], border: false }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8' } } }
+                }
+            });
+        };
+
+        initLineChart('registrationsChart', chartData.labels, chartData.series, '#c084fc');
+        initDoughnut('examStatusChart', @json($examStatus['labels']), @json($examStatus['series']));
+        initDoughnut('questionStatusChart', @json($questionStatus['labels']), @json($questionStatus['series']));
+    })();
+</script>
+@endif
 @endsection
