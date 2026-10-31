@@ -1,11 +1,68 @@
 {{-- Extracted verbatim from layouts/app.blade.php: global top navbar (brand, links, currencies, account dropdown). Rendered only when the student-shell flag is false. --}}
+
    <!-- Navbar Component -->  
 <header class="sticky-top w-full">
     <nav class="navbar navbar-expand-lg navbar-dark py-3">
         <div class="container max-w-7xl">
             <!-- Brand / Logo -->
-            <a class="navbar-brand fw-extrabold fs-3 gradient-text" href="{{ url('/') }}">NihongoBloom</a>
-            
+<!-- Sakura Icon Brand Box -->
+<a href="{{ url('/') }}" class="sakura-brand-box text-decoration-none d-flex align-items-center gap-3">
+    <div class="sakura-icon-wrapper">
+        <span class="sakura-emoji">🌸</span>
+    </div>
+    <div class="d-flex flex-column">
+        <span class="fw-extrabold fs-3 gradient-text">NihongoBloom</span>
+        <span class="brand-subtitle">Japanese Learning Platform</span>
+    </div>
+</a>
+
+<style>
+    /* Sakura Brand Box & Glassmorphism Styling */
+    .sakura-brand-box {
+        padding: 6px 12px;
+        border-radius: 14px;
+        transition: transform 0.25s ease;
+    }
+    
+    .sakura-brand-box:hover {
+        transform: translateY(-2px);
+    }
+
+    .sakura-icon-wrapper {
+        width: 45px;
+        height: 45px;
+        background: rgba(244, 114, 182, 0.15);
+        border: 1px solid rgba(244, 114, 182, 0.35);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 20px rgba(244, 114, 182, 0.2);
+    }
+
+    .sakura-emoji {
+        font-size: 1.4rem;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    }
+
+    .gradient-text {
+        background: linear-gradient(135deg, #f472b6 0%, #c084fc 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+    }
+
+    .brand-subtitle {
+        font-size: 0.7rem; 
+        color: rgba(255, 255, 255, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: -2px;
+    }
+</style>            
             <!-- Mobile Toggle Button (Hamburger) -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -25,10 +82,10 @@
 
                     <!-- Methods Link -->
                     <li class="nav-item">
-                        <a href="#methods" class="nav-link px-4 py-2 rounded-pill small fw-medium text-light opacity-75">
-                            <i class="bi bi-mortarboard me-2"></i> Methods
-                        </a>
-                    </li>
+        <a href="{{ route('methods') }}" class="nav-link px-4 py-2 rounded-pill small fw-medium text-light {{ request()->routeIs('methods') ? 'active bg-white bg-opacity-10 text-white shadow-sm' : 'opacity-75' }}">
+            <i class="bi bi-mortarboard me-2"></i> Methods
+        </a>
+           </li>
 
                     <!-- Kana Chart Link -->
                     <li class="nav-item">
@@ -159,3 +216,84 @@
         </div>
     </nav>
 </header>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const navbarNav = document.getElementById('navbarNav');
+        if (!navbarNav) return;
+
+        const navLinks = navbarNav.querySelectorAll('.nav-link');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+
+                if (!href || href === '#' || href.startsWith('http') || this.hasAttribute('data-bs-toggle')) {
+                    return;
+                }
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                const mainContent = document.getElementById('mainContent');
+                if (!mainContent) {
+                    console.error('Error: #mainContent container missing in current page!');
+                    window.location.href = href;
+                    return;
+                }
+
+                mainContent.style.opacity = '0.4';
+                mainContent.style.transition = 'opacity 0.2s ease';
+
+                fetch(href, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'text/html'
+                    }
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                        return;
+                    }
+                    if (!response.ok) {
+                        throw new Error('HTTP error! status: ' + response.status);
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newContent = doc.getElementById('mainContent');
+
+                    if (newContent) {
+                        mainContent.innerHTML = newContent.innerHTML;
+                    } else {
+                        // Fallback to body content if mainContent is missing in fetched page
+                        const bodyContent = doc.body;
+                        mainContent.innerHTML = bodyContent ? bodyContent.innerHTML : html;
+                    }
+
+                    mainContent.style.opacity = '1';
+
+                    window.history.pushState({ path: href }, '', href);
+
+                    navLinks.forEach(l => {
+                        l.classList.remove('active', 'bg-white', 'bg-opacity-10', 'text-white', 'shadow-sm');
+                        l.classList.add('opacity-75');
+                    });
+
+                    this.classList.add('active', 'bg-white', 'bg-opacity-10', 'text-white', 'shadow-sm');
+                    this.classList.remove('opacity-75');
+                })
+                .catch(error => {
+                    console.error('AJAX Navigation Failed:', error);
+                    window.location.href = href;
+                });
+            });
+        });
+
+        window.addEventListener('popstate', function () {
+            location.reload();
+        });
+    });
+</script>

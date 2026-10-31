@@ -61,6 +61,17 @@
   .sk-dash main .level-card,.sk-dash main .level-cta,.sk-dash main .arrow-icon,.lvl-exams{transition:none!important}
   .sk-dash main .level-card-link:hover .level-card,.sk-dash main .level-card-link:focus-visible .level-card,.sk-dash main .level-card-link:hover .level-cta,.sk-dash main .level-card-link:hover .arrow-icon{transform:none!important}
 }
+/* Consistent level card sizing */
+.sk-dash main .level-card-link,
+.sk-dash main .level-card-locked {
+    width: 100%;
+    min-height: 255px;
+}
+
+.sk-dash main .level-card {
+    width: 100%;
+    min-height: 255px;
+}
 </style>
 @endpush
 
@@ -79,59 +90,104 @@
         @endif
     </div>
 
-    <!-- Levels Grid -->
-    <div class="row g-4 justify-content-center">
-        @php($primaryClaimed = false)
-        @forelse($levels as $level)
-            @php($isUnlocked = in_array((int) $level->id, $accessibleLevelIds, true))
-            @php($isCompleted = in_array((int) $level->id, $completedLevelIds, true))
-            @php($isPrimary = $isUnlocked && !$isCompleted && !$primaryClaimed)
-            @php($primaryClaimed = $primaryClaimed || $isPrimary)
-            @php($lvlAccent = ['lvl-violet','lvl-blue','lvl-cyan','lvl-amber','lvl-pink','lvl-green'][($loop->index ?? 0) % 6])
-            <div class="col-12 col-md-6 col-lg-4">
-                @if($isUnlocked)
-                    <a href="{{ route('levels.courses', $level->id) }}" class="text-decoration-none level-card-link{{ $isPrimary ? ' is-primary' : '' }}">
-                @else
-                    <div class="text-decoration-none level-card-locked" aria-disabled="true" aria-label="{{ $level->name }} is locked">
-                @endif
-                    <div class="level-card {{ $lvlAccent }} p-4 h-100 position-relative">
-                        <div class="level-card-top d-flex align-items-center justify-content-between mb-3">
-                            <span class="badge level-badge px-3 py-2 rounded-pill fs-5">{{ $level->name }}</span>
-                            @if($isUnlocked)
-                                @if($isCompleted)
-                                    <span class="badge bg-success text-white me-2"><i class="bi bi-check-circle-fill me-1"></i>Completed</span>
-                                @elseif($isPrimary)
-                                    <span class="badge level-current text-white me-2"><i class="bi bi-bookmark-star-fill me-1"></i>Current Level</span>
-                                @else
-                                    <span class="small fw-semibold text-success me-2">Start Learning</span>
-                                    
-                                    <i class="bi bi-arrow-right fs-4 text-white-50 arrow-icon"></i>
-                                @endif
-                            @else
-                                <span class="badge bg-secondary text-white"><i class="bi bi-lock-fill me-1"></i>Locked</span>
-                            @endif
-                        </div>
-                        <h4 class="level-title fw-bold mb-2 text-white">{{ $level->title ?? $level->name }}</h4>
-                        <p class="level-desc small mb-0">{{ $level->description }}</p>
-                        @if($isPrimary)
-                            <span class="level-cta">Start Learning <i class="bi bi-arrow-right" aria-hidden="true"></i>
-                         
+<!-- Levels Grid -->
+<div class="row g-4 justify-content-center align-items-stretch">
+    @php($primaryClaimed = false)
+
+    @forelse($levels as $level)
+        @php($isUnlocked = in_array((int) $level->id, $accessibleLevelIds, true))
+        @php($isCompleted = in_array((int) $level->id, $completedLevelIds, true))
+        @php($isPrimary = $isUnlocked && !$isCompleted && !$primaryClaimed)
+        @php($primaryClaimed = $primaryClaimed || $isPrimary)
+
+        @php($lvlAccent = ['lvl-violet','lvl-blue','lvl-cyan','lvl-amber','lvl-pink','lvl-green'][($loop->index) % 6])
+
+        <div class="col-12 col-md-6 col-lg-4">
+
+            @if($isUnlocked)
+                <a href="{{ route('levels.courses', $level->id) }}#level-{{ $level->id }}"
+                   class="text-decoration-none level-card-link{{ $isPrimary ? ' is-primary' : '' }}">
+            @else
+                <div class="text-decoration-none level-card-locked"
+                     aria-disabled="true"
+                     aria-label="{{ $level->name }} is locked">
+            @endif
+
+                <div class="level-card {{ $lvlAccent }} p-4 h-100 position-relative">
+
+                    <div class="level-card-top d-flex align-items-center justify-content-between mb-3">
+
+                        <span class="badge level-badge px-3 py-2 rounded-pill fs-5">
+                            {{ $level->name }}
                         </span>
-                       
+
+                        @if($isUnlocked)
+
+                            @if($isCompleted)
+                                <span class="badge bg-success text-white me-2">
+                                    <i class="bi bi-check-circle-fill me-1"></i>
+                                    Completed
+                                </span>
+
+                            @elseif($isPrimary)
+                                <span class="badge level-current text-white me-2">
+                                    <i class="bi bi-bookmark-star-fill me-1"></i>
+                                    Current Level
+                                </span>
+
+                            @else
+                                <span class="small fw-semibold text-success me-2">
+                                    Start Learning
+                                </span>
+
+                                <i class="bi bi-arrow-right fs-4 text-white-50 arrow-icon"></i>
+                            @endif
+
+                        @else
+                            <span class="badge bg-secondary text-white">
+                                <i class="bi bi-lock-fill me-1"></i>
+                                Locked
+                            </span>
                         @endif
-                        <span class="level-step" aria-hidden="true">{{ str_pad((string) ($loop->index + 1), 2, '0', STR_PAD_LEFT) }}</span>
+
                     </div>
-                @if($isUnlocked)
-                    </a>
-                @else
-                    </div>
-                @endif
-            </div>
-        @empty
-            <div class="col-12 text-center py-5">
-                <p class="text-muted">No levels found in the database.</p>
-            </div>
-        @endforelse
-    </div>
+
+                    <h4 class="level-title fw-bold mb-2 text-white">
+                        {{ $level->title ?? $level->name }}
+                    </h4>
+
+                    <p class="level-desc small mb-0">
+                        {{ $level->description }}
+                    </p>
+
+                    @if($isPrimary)
+                        <span class="level-cta">
+                            Start Learning
+                            <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                        </span>
+                    @endif
+
+                    <span class="level-step" aria-hidden="true">
+                        {{ str_pad((string) ($loop->index + 1), 2, '0', STR_PAD_LEFT) }}
+                    </span>
+
+                </div>
+
+            @if($isUnlocked)
+                </a>
+            @else
+                </div>
+            @endif
+
+        </div>
+
+    @empty
+        <div class="col-12 text-center py-5">
+            <p class="text-muted">No levels found in the database.</p>
+        </div>
+    @endforelse
+</div>
+
+
 </div>
 @endsection

@@ -169,6 +169,7 @@ class StudentLevelSequentialLockingTest extends TestCase
         $this->completeTraining($student, $level);
         $this->passExams($student, $level);
         $this->evaluate($student, $level);
+        
 
         return $level;
     }

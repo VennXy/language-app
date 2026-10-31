@@ -173,3 +173,8 @@ Route::middleware('auth')->group(function () {
 Route::post('/lessons/{lesson}/vocabularies/import', [VocabularyController::class, 'importData'])
     ->middleware(['auth', 'role:super_admin'])
     ->name('super.admin.lessons.vocabularies.import');
+
+
+    Route::get('/methods', function () {
+    return view('methods');
+})->name('methods');

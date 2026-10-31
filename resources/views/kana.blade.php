@@ -3,7 +3,7 @@
 
 @section('content')
 <!-- Interactive Kana Table Section -->
-<!-- kana.blade.php ထဲရှိ section ကို ဒီလို ပြင်ပါ -->
+
 <section id="kana-section" class="py-5 position-relative overflow-hidden" style="background-color: #0d061a; min-height: 100vh;">    
     <!-- Background Glow Effect -->
     <div class="position-absolute top-0 start-50 translate-middle-x rounded-circle" style="width: 500px; height: 500px; background: rgba(192, 132, 252, 0.07); filter: blur(100px); z-index: 0;"></div>
